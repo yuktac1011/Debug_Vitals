@@ -17,8 +17,8 @@ class MockAIProvider extends AIProvider {
       summary: "No issues found in the supplied context."
     };
 
-    // If there's a package.json, simulate a finding for testing
-    if (request.files && request.files.some(f => f.path.includes('package.json'))) {
+    // If there's a package.json and it contains {}, simulate a finding for testing
+    if (request.files && request.files.some(f => f.path.includes('package.json') && f.content.includes('{}'))) {
       response.findings.push({
         title: "Missing author in package.json",
         severity: "low",

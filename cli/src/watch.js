@@ -61,6 +61,7 @@ function getFileGitMetadata(filepath) {
 const { buildContext } = require('./contextBuilder');
 const { MockAIProvider } = require('./ai/provider');
 const { AIAnalysisEngine } = require('./ai/engine');
+const { FindingEngine } = require('./ai/findingEngine');
 
 const aiProvider = new MockAIProvider();
 const aiEngine = new AIAnalysisEngine(aiProvider);
@@ -92,6 +93,8 @@ function watchCommand() {
     config.sessionId = crypto.randomUUID();
     fs.writeFileSync(configFile, JSON.stringify(config, null, 2));
   }
+
+  const findingEngine = new FindingEngine(cwd);
 
   const API_URL = process.env.AGENTDOCTOR_API_URL || 'http://localhost:8000';
 
@@ -269,19 +272,35 @@ function watchCommand() {
     
     processQueue();
 
-    // PHASE 4: AI Analysis
+    // PHASE 4: AI Analysis & PHASE 5: Finding Engine
     if (aiContext.files.length > 0) {
       aiEngine.analyzeContext(aiContext).then(result => {
-        if (result.status === 'success' && result.findings.length > 0) {
-          // Send findings to backend
+        if (result.status === 'success') {
+          // Process via FindingEngine
+          const analyzedFiles = aiContext.files.map(f => f.path);
+          const { newFindings, resolvedFindings } = findingEngine.processAnalysis(result.findings, analyzedFiles);
+          
+          const riskSummary = findingEngine.getRiskSummary();
+          const grouped = findingEngine.groupFindings();
+
+          // Send findings and risk summary to backend
           eventQueue.push({
             session_id: config.sessionId,
             event_type: 'custom',
             occurred_at: new Date().toISOString(),
             source: 'cli_ai_analysis',
-            summary: `AI Analysis: ${result.findings.length} findings`,
-            payload: { findings: result.findings, summary: result.summary }
+            summary: `Risk Update: ${riskSummary.open} open, ${riskSummary.resolved} resolved`,
+            payload: { 
+              newFindings, 
+              resolvedFindings,
+              riskSummary,
+              grouped,
+              aiSummary: result.summary 
+            }
           });
+          
+          console.log(`[risk] ${riskSummary.open} open issues (${newFindings.length} new, ${resolvedFindings.length} resolved in this batch)`);
+          
           processQueue();
         } else if (result.status === 'unavailable') {
           console.log(`[ai] Analysis temporarily unavailable: ${result.reason}`);
