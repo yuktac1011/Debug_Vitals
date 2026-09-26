@@ -18,47 +18,48 @@
   body { background: var(--bg); color: var(--text); font-family: var(--font);
     font-size: 14px; line-height: 1.6; min-height: 100vh; }
 
-  /* ── Layout ── */
+  /* Layout */
   .shell { display: grid; grid-template-columns: 220px 1fr; grid-template-rows: 48px 1fr;
     height: 100vh; }
 
-  /* ── Top bar ── */
+  /* Top bar */
   .topbar { grid-column: 1/-1; background: var(--surface); border-bottom: 1px solid var(--border);
     display: flex; align-items: center; gap: 12px; padding: 0 20px; }
   .topbar .logo { font-weight: 700; font-size: 16px; color: var(--accent); letter-spacing: -.3px; }
   .topbar .logo span { color: var(--muted); font-weight: 400; }
   .badge { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--surface2);
-    border: 1px solid var(--border); color: var(--muted); }
+    border: 1px solid var(--border); color: var(--muted); display: inline-flex; align-items: center; }
   .badge.green { color: var(--green); border-color: var(--green); }
   .badge.red   { color: var(--red);   border-color: var(--red); }
   #health-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted);
-    display: inline-block; margin-right: 4px; }
+    display: inline-block; margin-right: 5px; flex-shrink: 0; }
   .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
   .topbar a { color: var(--accent); text-decoration: none; font-size: 13px; }
 
-  /* ── Sidebar ── */
+  /* Sidebar */
   .sidebar { background: var(--surface); border-right: 1px solid var(--border);
     padding: 16px 0; overflow-y: auto; }
   .nav-section { padding: 4px 16px 2px; font-size: 11px; text-transform: uppercase;
     letter-spacing: .8px; color: var(--muted); margin-top: 12px; }
   .nav-item { display: block; padding: 7px 16px; cursor: pointer; color: var(--muted);
-    font-size: 13px; border-left: 2px solid transparent; transition: all .15s; }
+    font-size: 13px; border-left: 2px solid transparent; transition: all .15s;
+    text-decoration: none; }
   .nav-item:hover { color: var(--text); background: var(--surface2); }
   .nav-item.active { color: var(--accent); border-left-color: var(--accent);
     background: rgba(88,166,255,.07); }
   .nav-item .icon { margin-right: 8px; width: 14px; display: inline-block; text-align: center; }
 
-  /* ── Main content ── */
+  /* Main content */
   .main { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
 
-  /* ── Cards ── */
+  /* Cards */
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
   .card-header { padding: 14px 18px; border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between; }
   .card-header h3 { font-size: 14px; font-weight: 600; }
   .card-body { padding: 18px; }
 
-  /* ── Form controls ── */
+  /* Form controls */
   label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; margin-top: 12px; }
   label:first-child { margin-top: 0; }
   input, textarea, select {
@@ -68,7 +69,7 @@
   input:focus, textarea:focus, select:focus { border-color: var(--accent); }
   textarea { resize: vertical; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px; }
 
-  /* ── Buttons ── */
+  /* Buttons */
   .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
     border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer;
     border: 1px solid transparent; transition: opacity .15s, background .15s; }
@@ -79,16 +80,16 @@
   .btn-sm { padding: 4px 10px; font-size: 12px; }
   .btn:disabled { opacity: .4; cursor: not-allowed; }
 
-  /* ── Response panel ── */
+  /* Response panel */
   .response-box { background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
     padding: 14px; margin-top: 14px; max-height: 420px; overflow-y: auto; }
   .response-box pre { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px;
     white-space: pre-wrap; word-break: break-all; color: var(--text); }
   .status-line { font-size: 12px; margin-bottom: 8px; display: flex; gap: 10px; align-items: center; }
-  .status-ok   { color: var(--green); }
-  .status-err  { color: var(--red); }
+  .status-ok  { color: var(--green); }
+  .status-err { color: var(--red); }
 
-  /* ── Timeline ── */
+  /* Timeline */
   .timeline { display: flex; flex-direction: column; gap: 0; }
   .tl-item { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--border); }
   .tl-item:last-child { border-bottom: none; }
@@ -108,7 +109,7 @@
   .severity-info     { color: var(--accent); }
   .severity-critical { color: #ff6b6b; }
 
-  /* ── Root cause card ── */
+  /* Root cause cards */
   .cause-item { background: var(--surface2); border: 1px solid var(--border);
     border-radius: 6px; padding: 14px; margin-bottom: 10px; }
   .cause-rank { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
@@ -117,17 +118,17 @@
   .score-bar-wrap { background: var(--border); height: 4px; border-radius: 2px; margin-top: 10px; }
   .score-bar { height: 4px; border-radius: 2px; background: var(--accent); transition: width .5s; }
 
-  /* ── Tabs ── */
+  /* Tabs */
   .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
   .tab { padding: 8px 16px; font-size: 13px; cursor: pointer; color: var(--muted);
     border-bottom: 2px solid transparent; margin-bottom: -1px; }
   .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* ── Page visibility ── */
+  /* Page visibility */
   .page { display: none; flex-direction: column; gap: 20px; }
   .page.active { display: flex; }
 
-  /* ── Misc ── */
+  /* Misc */
   .row { display: flex; gap: 12px; align-items: flex-end; }
   .row > * { flex: 1; }
   .row .btn { flex: 0; }
@@ -142,11 +143,38 @@
   .copy-btn { cursor: pointer; font-size: 11px; color: var(--muted); padding: 2px 6px;
     border: 1px solid var(--border); border-radius: 4px; background: var(--surface2); }
   .copy-btn:hover { color: var(--text); }
-  #session-id-display { font-family: monospace; font-size: 12px; color: var(--accent);
-    word-break: break-all; }
   .explanation-box { background: var(--surface2); border-left: 3px solid var(--accent);
     padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.7;
     color: var(--text); margin-bottom: 14px; }
+
+  /* Regression test cards */
+  .test-item { background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px; margin-bottom: 10px; }
+  .test-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .test-code { background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+    padding: 10px 12px; max-height: 220px; overflow-y: auto; margin-top: 8px; }
+  .test-code pre { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px;
+    white-space: pre-wrap; word-break: break-all; color: var(--text); }
+
+  /* WS live feed */
+  #ws-feed { position: fixed; bottom: 20px; right: 20px; width: 320px; z-index: 100; }
+  #ws-feed-inner { background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,.4); }
+  #ws-feed-header { background: var(--surface2); padding: 8px 12px;
+    display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+  #ws-feed-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted);
+    display: inline-block; margin-right: 6px; }
+  #ws-feed-dot.connected { background: var(--green); }
+  #ws-events { max-height: 200px; overflow-y: auto; padding: 8px 12px;
+    display: flex; flex-direction: column; gap: 6px; }
+  .ws-msg { font-size: 11px; color: var(--muted); font-family: 'SFMono-Regular', Consolas, monospace;
+    border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+  .ws-msg:last-child { border-bottom: none; }
+  .ws-msg .ws-type { color: var(--accent); font-weight: 600; }
+  .ws-msg .ws-time { color: var(--muted); margin-left: 4px; }
+  #ws-toggle { cursor: pointer; color: var(--muted); background: none; border: none;
+    font-size: 13px; padding: 0; }
+  #ws-feed.minimised #ws-events { display: none; }
 </style>
 </head>
 <body>
@@ -156,12 +184,12 @@
   <header class="topbar">
     <span class="logo">Debug<span>Vitals</span></span>
     <span class="badge" id="health-badge">
-      <span id="health-dot"></span><span id="health-text">checking…</span>
+      <span id="health-dot"></span><span id="health-text">checking&hellip;</span>
     </span>
     <span style="color:var(--muted);font-size:12px">AI Agent Diagnostic System</span>
     <div class="topbar-right">
-      <a href="/docs" target="_blank">Swagger UI ↗</a>
-      <a href="/redoc" target="_blank">ReDoc ↗</a>
+      <a href="/docs" target="_blank">Swagger UI &#8599;</a>
+      <a href="/redoc" target="_blank">ReDoc &#8599;</a>
     </div>
   </header>
 
@@ -169,33 +197,33 @@
   <nav class="sidebar">
     <div class="nav-section">Session</div>
     <a class="nav-item active" data-page="ingest" onclick="showPage('ingest')">
-      <span class="icon">⚡</span>Ingest Events</a>
+      <span class="icon">&#9889;</span>Ingest Events</a>
     <a class="nav-item" data-page="timeline" onclick="showPage('timeline')">
-      <span class="icon">📋</span>Timeline</a>
+      <span class="icon">&#128203;</span>Timeline</a>
 
     <div class="nav-section">Analysis</div>
     <a class="nav-item" data-page="diagnose" onclick="showPage('diagnose')">
-      <span class="icon">🔬</span>Diagnose</a>
+      <span class="icon">&#128300;</span>Diagnose</a>
     <a class="nav-item" data-page="verify" onclick="showPage('verify')">
-      <span class="icon">🐳</span>Verify</a>
+      <span class="icon">&#128051;</span>Verify</a>
     <a class="nav-item" data-page="regression" onclick="showPage('regression')">
-      <span class="icon">🛡</span>Regression Guard</a>
+      <span class="icon">&#128737;</span>Regression Guard</a>
 
     <div class="nav-section">System</div>
     <a class="nav-item" data-page="health" onclick="showPage('health')">
-      <span class="icon">💚</span>Health</a>
+      <span class="icon">&#128154;</span>Health</a>
     <a class="nav-item" data-page="guide" onclick="showPage('guide')">
-      <span class="icon">📖</span>Swagger Guide</a>
+      <span class="icon">&#128214;</span>Swagger Guide</a>
   </nav>
 
   <!-- Main -->
   <main class="main">
 
-    <!-- ── INGEST PAGE ── -->
+    <!-- INGEST PAGE -->
     <div class="page active" id="page-ingest">
       <div class="card">
         <div class="card-header">
-          <h3>⚡ Ingest Events  <span style="font-weight:400;color:var(--muted)">POST /api/v1/events</span></h3>
+          <h3>&#9889; Ingest Events &nbsp;<span style="font-weight:400;color:var(--muted)">POST /api/v1/events</span></h3>
           <button class="btn btn-sm btn-secondary" onclick="genSessionId()">New Session ID</button>
         </div>
         <div class="card-body">
@@ -228,11 +256,11 @@
       </div>
     </div>
 
-    <!-- ── TIMELINE PAGE ── -->
+    <!-- TIMELINE PAGE -->
     <div class="page" id="page-timeline">
       <div class="card">
         <div class="card-header">
-          <h3>📋 Timeline  <span style="font-weight:400;color:var(--muted)">GET /api/v1/session/{id}/timeline</span></h3>
+          <h3>&#128203; Timeline &nbsp;<span style="font-weight:400;color:var(--muted)">GET /api/v1/session/{id}/timeline</span></h3>
         </div>
         <div class="card-body">
           <div class="row">
@@ -244,9 +272,13 @@
               <label>Event type filter (optional)</label>
               <select id="tl-event-type">
                 <option value="">All types</option>
-                <option>agent_action</option><option>git_diff</option>
-                <option>test_result</option><option>env_snapshot</option>
-                <option>ci_result</option><option>dependency</option><option>custom</option>
+                <option>agent_action</option>
+                <option>git_diff</option>
+                <option>test_result</option>
+                <option>env_snapshot</option>
+                <option>ci_result</option>
+                <option>dependency</option>
+                <option>custom</option>
               </select>
             </div>
             <div>
@@ -266,19 +298,22 @@
       </div>
     </div>
 
-    <!-- ── DIAGNOSE PAGE ── -->
+    <!-- DIAGNOSE PAGE -->
     <div class="page" id="page-diagnose">
       <div class="card">
         <div class="card-header">
-          <h3>🔬 Diagnose  <span style="font-weight:400;color:var(--muted)">POST /api/v1/session/{id}/diagnose</span></h3>
+          <h3>&#128300; Diagnose &nbsp;<span style="font-weight:400;color:var(--muted)">POST /api/v1/session/{id}/diagnose</span></h3>
         </div>
         <div class="card-body">
           <label>Session ID</label>
           <input id="dx-session-id" type="text" placeholder="paste session UUID" />
           <div class="row" style="margin-top:12px">
-            <div><label>Top N root causes</label>
-              <input id="dx-topn" type="number" value="5" /></div>
-            <div><label>&nbsp;</label>
+            <div>
+              <label>Top N root causes</label>
+              <input id="dx-topn" type="number" value="5" min="1" max="50" />
+            </div>
+            <div>
+              <label>&nbsp;</label>
               <label style="margin-top:6px">
                 <input type="checkbox" id="dx-graph" style="width:auto;margin-right:6px" />
                 Include correlation graph
@@ -286,7 +321,7 @@
             </div>
           </div>
           <div style="margin-top:14px;display:flex;gap:10px">
-            <button class="btn btn-primary" onclick="runDiagnosis()">Run Diagnosis</button>
+            <button class="btn btn-primary" onclick="runDiagnosis(event)">Run Diagnosis</button>
             <button class="btn btn-secondary" onclick="clearResponse('dx-response')">Clear</button>
           </div>
           <div id="dx-response" style="margin-top:16px"></div>
@@ -294,37 +329,42 @@
       </div>
     </div>
 
-    <!-- ── VERIFY PAGE ── -->
+    <!-- VERIFY PAGE -->
     <div class="page" id="page-verify">
       <div class="card">
         <div class="card-header">
-          <h3>🐳 Verify  <span style="font-weight:400;color:var(--muted)">POST /api/v1/session/{id}/verify</span></h3>
+          <h3>&#128051; Verify &nbsp;<span style="font-weight:400;color:var(--muted)">POST /api/v1/session/{id}/verify</span></h3>
         </div>
         <div class="card-body">
           <label>Session ID</label>
           <input id="vf-session-id" type="text" placeholder="paste session UUID" />
+          <label>Diagnosis ID (optional — links result to a diagnosis)</label>
+          <input id="vf-diagnosis-id" type="text" placeholder="paste diagnosis UUID (optional)" />
           <label>Docker image (approved list)</label>
           <select id="vf-image">
-            <option>python:3.11-slim</option><option>python:3.12-slim</option>
-            <option>node:20-slim</option><option>node:18-slim</option>
-            <option>alpine:3.19</option><option>ubuntu:22.04</option>
+            <option>python:3.11-slim</option>
+            <option>python:3.12-slim</option>
+            <option>node:20-slim</option>
+            <option>node:18-slim</option>
+            <option>alpine:3.19</option>
+            <option>ubuntu:22.04</option>
           </select>
           <label>Command to run inside container</label>
           <input id="vf-command" type="text" value="python -c &quot;print('hello from sandbox')&quot;" />
           <div style="margin-top:14px;display:flex;gap:10px">
-            <button class="btn btn-primary" onclick="runVerify()">Run Verification</button>
+            <button class="btn btn-primary" onclick="runVerify(event)">Run Verification</button>
             <button class="btn btn-secondary" onclick="clearResponse('vf-response')">Clear</button>
           </div>
-          <div id="vf-response" class="response-box" style="display:none"></div>
+          <div id="vf-response" style="margin-top:16px"></div>
         </div>
       </div>
     </div>
 
-    <!-- ── REGRESSION PAGE ── -->
+    <!-- REGRESSION PAGE -->
     <div class="page" id="page-regression">
       <div class="card">
         <div class="card-header">
-          <h3>🛡 Regression Guard  <span style="font-weight:400;color:var(--muted)">POST /api/v1/session/{id}/regression-guard</span></h3>
+          <h3>&#128737; Regression Guard &nbsp;<span style="font-weight:400;color:var(--muted)">POST /api/v1/session/{id}/regression-guard</span></h3>
         </div>
         <div class="card-body">
           <label>Session ID</label>
@@ -332,15 +372,29 @@
           <label>Diagnosis ID (from diagnose step)</label>
           <input id="rg-diagnosis-id" type="text" placeholder="paste diagnosis UUID" />
           <div class="row" style="margin-top:12px">
-            <div><label>Top N causes to cover</label>
-              <input id="rg-topn" type="number" value="3" /></div>
-            <div><label>Docker image</label>
+            <div>
+              <label>Top N causes to cover</label>
+              <input id="rg-topn" type="number" value="3" min="1" max="10" />
+            </div>
+            <div>
+              <label>Docker image</label>
               <select id="rg-image">
-                <option>python:3.11-slim</option><option>python:3.12-slim</option>
+                <option>python:3.11-slim</option>
+                <option>python:3.12-slim</option>
                 <option>node:20-slim</option>
               </select>
             </div>
-            <div><label>&nbsp;</label>
+            <div>
+              <label>Language (optional)</label>
+              <select id="rg-language">
+                <option value="">Auto-detect</option>
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
+                <option value="typescript">TypeScript</option>
+              </select>
+            </div>
+            <div>
+              <label>&nbsp;</label>
               <label style="margin-top:6px">
                 <input type="checkbox" id="rg-run" style="width:auto;margin-right:6px" />
                 Run tests immediately
@@ -348,19 +402,19 @@
             </div>
           </div>
           <div style="margin-top:14px;display:flex;gap:10px">
-            <button class="btn btn-primary" onclick="runRegression()">Generate Tests</button>
+            <button class="btn btn-primary" onclick="runRegression(event)">Generate Tests</button>
             <button class="btn btn-secondary" onclick="clearResponse('rg-response')">Clear</button>
           </div>
-          <div id="rg-response" class="response-box" style="display:none"></div>
+          <div id="rg-response" style="margin-top:16px"></div>
         </div>
       </div>
     </div>
 
-    <!-- ── HEALTH PAGE ── -->
+    <!-- HEALTH PAGE -->
     <div class="page" id="page-health">
       <div class="card">
         <div class="card-header">
-          <h3>💚 Health Check  <span style="font-weight:400;color:var(--muted)">GET /api/v1/health</span></h3>
+          <h3>&#128154; Health Check &nbsp;<span style="font-weight:400;color:var(--muted)">GET /api/v1/health</span></h3>
           <button class="btn btn-sm btn-secondary" onclick="checkHealth()">Refresh</button>
         </div>
         <div class="card-body" id="health-detail">
@@ -369,10 +423,10 @@
       </div>
     </div>
 
-    <!-- ── SWAGGER GUIDE PAGE ── -->
+    <!-- SWAGGER GUIDE PAGE -->
     <div class="page" id="page-guide">
       <div class="card">
-        <div class="card-header"><h3>📖 Swagger UI — Test Inputs Reference</h3></div>
+        <div class="card-header"><h3>&#128214; Swagger UI &mdash; Test Inputs Reference</h3></div>
         <div class="card-body">
           <div class="tabs">
             <div class="tab active" onclick="switchTab(this,'tab-flow')">Full Flow</div>
@@ -388,37 +442,37 @@
             </p>
             <div style="display:flex;flex-direction:column;gap:12px">
               <div class="cause-item">
-                <div class="cause-rank">Step 1 — Ingest Events</div>
+                <div class="cause-rank">Step 1 &mdash; Ingest Events</div>
                 <div class="cause-reason" style="margin-top:8px">
                   <b>POST</b> <code>/api/v1/events</code><br/>
-                  Use any payload from the "Event Payloads" tab.<br/>
-                  <b>Save</b> the <code>session_id</code> from your payload — you'll use it in every subsequent step.
+                  Use any payload from the &ldquo;Event Payloads&rdquo; tab.<br/>
+                  <b>Save</b> the <code>session_id</code> from your payload &mdash; you&rsquo;ll use it in every subsequent step.
                 </div>
               </div>
               <div class="cause-item">
-                <div class="cause-rank">Step 2 — View Timeline</div>
+                <div class="cause-rank">Step 2 &mdash; View Timeline</div>
                 <div class="cause-reason" style="margin-top:8px">
                   <b>GET</b> <code>/api/v1/session/{session_id}/timeline</code><br/>
                   Verify all events were ingested in chronological order.
                 </div>
               </div>
               <div class="cause-item">
-                <div class="cause-rank">Step 3 — Run Diagnosis</div>
+                <div class="cause-rank">Step 3 &mdash; Run Diagnosis</div>
                 <div class="cause-reason" style="margin-top:8px">
                   <b>POST</b> <code>/api/v1/session/{session_id}/diagnose</code><br/>
                   Body: <code>{"top_n": 5, "include_graph": false}</code><br/>
-                  <b>Save</b> the returned <code>id</code> (diagnosis UUID) for step 4 and 5.
+                  <b>Save</b> the returned <code>id</code> (diagnosis UUID) for steps 4 and 5.
                 </div>
               </div>
               <div class="cause-item">
-                <div class="cause-rank">Step 4 — Verify (optional)</div>
+                <div class="cause-rank">Step 4 &mdash; Verify (optional)</div>
                 <div class="cause-reason" style="margin-top:8px">
                   <b>POST</b> <code>/api/v1/session/{session_id}/verify</code><br/>
                   Body:<br/><code>{"docker_image":"python:3.11-slim","command":"python -c \"import sys; sys.exit(1)\"","diagnosis_id":"&lt;uuid&gt;"}</code>
                 </div>
               </div>
               <div class="cause-item">
-                <div class="cause-rank">Step 5 — Regression Guard</div>
+                <div class="cause-rank">Step 5 &mdash; Regression Guard</div>
                 <div class="cause-reason" style="margin-top:8px">
                   <b>POST</b> <code>/api/v1/session/{session_id}/regression-guard</code><br/>
                   Body:<br/><code>{"diagnosis_id":"&lt;uuid&gt;","top_n_causes":3,"docker_image":"python:3.11-slim","run_immediately":false}</code>
@@ -429,13 +483,13 @@
 
           <div id="tab-events" class="tab-content" style="display:none">
             <p style="color:var(--muted);margin-bottom:12px;font-size:13px">
-              Copy any payload below into Swagger → POST /api/v1/events → Request body.
+              Copy any payload below into Swagger &rsaquo; POST /api/v1/events &rsaquo; Request body.
             </p>
             <div id="guide-snippets"></div>
           </div>
 
           <div id="tab-diagnose" class="tab-content" style="display:none">
-            <p style="color:var(--muted);margin-bottom:12px;font-size:13px">POST /api/v1/session/{session_id}/diagnose — Request body:</p>
+            <p style="color:var(--muted);margin-bottom:12px;font-size:13px">POST /api/v1/session/{session_id}/diagnose &mdash; Request body:</p>
             <pre class="response-box" style="margin-top:0">{
   "top_n": 5,
   "include_graph": false
@@ -448,7 +502,7 @@
           </div>
 
           <div id="tab-verify" class="tab-content" style="display:none">
-            <p style="color:var(--muted);margin-bottom:12px;font-size:13px">POST /api/v1/session/{session_id}/verify — Request body:</p>
+            <p style="color:var(--muted);margin-bottom:12px;font-size:13px">POST /api/v1/session/{session_id}/verify &mdash; Request body:</p>
             <pre class="response-box" style="margin-top:0">{
   "docker_image": "python:3.11-slim",
   "command": "python -c \"print('sandbox OK'); import sys; sys.exit(0)\"",
@@ -465,7 +519,7 @@
           </div>
 
           <div id="tab-regression" class="tab-content" style="display:none">
-            <p style="color:var(--muted);margin-bottom:12px;font-size:13px">POST /api/v1/session/{session_id}/regression-guard — Request body:</p>
+            <p style="color:var(--muted);margin-bottom:12px;font-size:13px">POST /api/v1/session/{session_id}/regression-guard &mdash; Request body:</p>
             <pre class="response-box" style="margin-top:0">{
   "diagnosis_id": "&lt;paste diagnosis UUID here&gt;",
   "top_n_causes": 3,
@@ -489,10 +543,21 @@
   </main>
 </div>
 
-<script>
-const API = '';  // same origin
+<!-- Live WebSocket feed (bottom-right) -->
+<div id="ws-feed">
+  <div id="ws-feed-inner">
+    <div id="ws-feed-header">
+      <span><span id="ws-feed-dot"></span><span id="ws-feed-label">Live feed &mdash; no session</span></span>
+      <button id="ws-toggle" onclick="toggleWsFeed()">&#8722;</button>
+    </div>
+    <div id="ws-events"><div class="ws-msg" style="color:var(--muted)">Connect a session to see live events.</div></div>
+  </div>
+</div>
 
-// ── Scenarios ─────────────────────────────────────────────────────────────────
+<script>
+const API = '';  // same-origin — served by FastAPI at /
+
+// ── Scenario payloads ──────────────────────────────────────────────────────────
 const SCENARIOS = {
   agent_fail: (sid) => ({
     events: [{
@@ -590,39 +655,52 @@ const SCENARIOS = {
   }
 };
 
-// ── State ─────────────────────────────────────────────────────────────────────
+// ── State ──────────────────────────────────────────────────────────────────────
 let currentSessionId = '';
+let wsConn = null;
+let wsReconnectTimer = null;
+let wsFeedMinimised = false;
 
+// ── Utilities ──────────────────────────────────────────────────────────────────
 function uuid() {
   return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
 }
 
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ── Session ID helpers ─────────────────────────────────────────────────────────
 function genSessionId() {
   const id = uuid();
   document.getElementById('session-id').value = id;
   currentSessionId = id;
-  // Propagate to all session ID inputs
-  ['tl-session-id','dx-session-id','vf-session-id','rg-session-id'].forEach(k => {
-    const el = document.getElementById(k);
-    if (el && !el.value) el.value = id;
-  });
+  propagateSessionId(id, false); // only fill empty fields
 }
 
 function copySessionId() {
   const v = document.getElementById('session-id').value;
-  if (v) { navigator.clipboard.writeText(v); }
+  if (v) navigator.clipboard.writeText(v);
+}
+
+/** Push session id to all downstream inputs. force=true overwrites existing values. */
+function propagateSessionId(id, force) {
+  ['tl-session-id','dx-session-id','vf-session-id','rg-session-id'].forEach(k => {
+    const el = document.getElementById(k);
+    if (el && (force || !el.value)) el.value = id;
+  });
 }
 
 function fillScenario(name) {
   const sid = document.getElementById('session-id').value || uuid();
   document.getElementById('session-id').value = sid;
   currentSessionId = sid;
-  ['tl-session-id','dx-session-id','vf-session-id','rg-session-id'].forEach(k => {
-    const el = document.getElementById(k); if (el && !el.value) el.value = sid;
-  });
-  const payload = SCENARIOS[name](sid);
-  document.getElementById('event-payload').value = JSON.stringify(payload, null, 2);
+  propagateSessionId(sid, false);
+  document.getElementById('event-payload').value =
+    JSON.stringify(SCENARIOS[name](sid), null, 2);
 }
 
 // ── Navigation ─────────────────────────────────────────────────────────────────
@@ -635,7 +713,6 @@ function showPage(name) {
   if (name === 'guide') renderGuideSnippets();
 }
 
-// ── Tab switching ──────────────────────────────────────────────────────────────
 function switchTab(el, id) {
   el.closest('.card-body').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.closest('.card-body').querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
@@ -643,7 +720,7 @@ function switchTab(el, id) {
   document.getElementById(id).style.display = '';
 }
 
-// ── API helpers ───────────────────────────────────────────────────────────────
+// ── API helper ─────────────────────────────────────────────────────────────────
 async function apiFetch(method, url, body) {
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
   if (body !== undefined) opts.body = JSON.stringify(body);
@@ -653,13 +730,14 @@ async function apiFetch(method, url, body) {
   return { ok: resp.ok, status: resp.status, data };
 }
 
-function renderResponse(elId, result, hide) {
+function renderResponse(elId, result) {
   const box = document.getElementById(elId);
   box.style.display = '';
-  const statusCls = result.ok ? 'status-ok' : 'status-err';
+  const cls = result.ok ? 'status-ok' : 'status-err';
+  const icon = result.ok ? '&#10003;' : '&#10007;';
   box.innerHTML = `<div class="status-line">
-    <span class="${statusCls}">HTTP ${result.status} ${result.ok ? '✓' : '✗'}</span>
-  </div><pre>${JSON.stringify(result.data, null, 2)}</pre>`;
+    <span class="${cls}">HTTP ${result.status} ${icon}</span>
+  </div><pre>${esc(JSON.stringify(result.data, null, 2))}</pre>`;
 }
 
 function clearResponse(id) {
@@ -667,38 +745,46 @@ function clearResponse(id) {
   el.style.display = 'none'; el.innerHTML = '';
 }
 
-// ── Ingest ────────────────────────────────────────────────────────────────────
+// ── Ingest Events ──────────────────────────────────────────────────────────────
 async function ingestEvents() {
   const raw = document.getElementById('event-payload').value.trim();
   if (!raw) return alert('Enter a JSON payload first.');
   let body;
   try { body = JSON.parse(raw); } catch(e) { return alert('Invalid JSON: ' + e.message); }
-  const btn = event.target; btn.disabled = true; btn.textContent = 'Sending…';
+
+  const btn = document.querySelector('#page-ingest .btn-primary');
+  btn.disabled = true; btn.textContent = 'Sending\u2026';
   try {
     const result = await apiFetch('POST', '/api/v1/events', body);
     renderResponse('ingest-response', result);
-    if (result.ok && result.data.accepted && result.data.accepted.length > 0) {
-      // Auto-propagate session id
-      const evts = body.events;
-      if (evts && evts[0] && evts[0].session_id) {
-        const sid = evts[0].session_id;
-        ['tl-session-id','dx-session-id','vf-session-id','rg-session-id'].forEach(k => {
-          const el = document.getElementById(k); if (el) el.value = sid;
-        });
+
+    if (result.ok) {
+      // Extract session_id from the submitted payload and propagate everywhere
+      const sid = body.events && body.events[0] ? body.events[0].session_id : null;
+      if (sid) {
+        document.getElementById('session-id').value = sid;
+        currentSessionId = sid;
+        propagateSessionId(sid, true); // force-fill all fields after a successful ingest
+        connectWs(sid);
       }
     }
-  } finally { btn.disabled = false; btn.textContent = 'Send Events'; }
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send Events';
+  }
 }
 
-// ── Timeline ──────────────────────────────────────────────────────────────────
+// ── Timeline ───────────────────────────────────────────────────────────────────
 async function loadTimeline() {
   const sid = document.getElementById('tl-session-id').value.trim();
   if (!sid) return alert('Enter a Session ID');
-  const type = document.getElementById('tl-event-type').value;
+  const type  = document.getElementById('tl-event-type').value;
   const limit = document.getElementById('tl-limit').value || 50;
-  const payload = document.getElementById('tl-payload').checked;
-  let url = `/api/v1/session/${sid}/timeline?limit=${limit}&include_payload=${payload}`;
-  if (type) url += `&event_type=${type}`;
+  const incl  = document.getElementById('tl-payload').checked;
+
+  // Backend accepts event_type as a repeated query param (alias for event_types)
+  let url = `/api/v1/session/${sid}/timeline?limit=${limit}&include_payload=${incl}`;
+  if (type) url += `&event_type=${encodeURIComponent(type)}`;
+
   const result = await apiFetch('GET', url);
   renderTimeline(result);
 }
@@ -706,149 +792,281 @@ async function loadTimeline() {
 function renderTimeline(result) {
   const el = document.getElementById('timeline-result');
   if (!result.ok) {
-    el.innerHTML = `<div class="empty" style="color:var(--red)">Error ${result.status}: ${JSON.stringify(result.data)}</div>`;
+    el.innerHTML = `<div class="empty" style="color:var(--red)">Error ${result.status}: ${esc(JSON.stringify(result.data))}</div>`;
     return;
   }
   const data = result.data;
   if (!data.events || data.events.length === 0) {
-    el.innerHTML = '<div class="empty">No events found for this session</div>'; return;
+    el.innerHTML = '<div class="empty">No events found for this session</div>';
+    return;
   }
   const header = `<div style="color:var(--muted);font-size:12px;margin-bottom:12px">
     Showing ${data.events.length} of ${data.total_count} events
-    ${data.has_more ? '— <span style="color:var(--yellow)">more available (increase limit)</span>' : ''}
+    (offset ${data.offset} / limit ${data.limit})
+    ${data.has_more ? '&mdash; <span style="color:var(--yellow)">more available &uarr; limit</span>' : ''}
   </div>`;
   const items = data.events.map(ev => {
-    const sev = ev.severity ? `<span class="severity-${ev.severity} pill">${ev.severity}</span>` : '';
-    const t = new Date(ev.occurred_at).toLocaleTimeString();
+    const sev = ev.severity ? `<span class="severity-${esc(ev.severity)} pill">${esc(ev.severity)}</span>` : '';
+    const t   = new Date(ev.occurred_at).toLocaleTimeString();
+    const src = ev.source ? `<span class="tl-meta">${esc(ev.source)}</span>` : '';
+    const pay = ev.payload
+      ? `<details style="margin-top:6px"><summary style="font-size:11px;color:var(--muted);cursor:pointer">payload</summary>
+           <pre style="font-size:11px;color:var(--muted);white-space:pre-wrap;margin-top:4px">${esc(JSON.stringify(ev.payload,null,2))}</pre>
+         </details>`
+      : '';
     return `<div class="tl-item">
-      <div class="tl-dot ${ev.event_type}" style="margin-top:4px"></div>
+      <div class="tl-dot ${esc(ev.event_type)}" style="margin-top:4px"></div>
       <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="tl-type">${ev.event_type}</span>${sev}
-          <span class="tl-meta">${t}</span>
-          ${ev.source ? `<span class="tl-meta">${ev.source}</span>` : ''}
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="tl-type">${esc(ev.event_type)}</span>${sev}
+          <span class="tl-meta">${esc(t)}</span>${src}
         </div>
-        ${ev.summary ? `<div class="tl-summary">${ev.summary}</div>` : ''}
+        ${ev.summary ? `<div class="tl-summary">${esc(ev.summary)}</div>` : ''}
+        ${pay}
       </div>
     </div>`;
   }).join('');
   el.innerHTML = header + `<div class="timeline">${items}</div>`;
 }
 
-// ── Diagnose ──────────────────────────────────────────────────────────────────
-async function runDiagnosis() {
+// ── Diagnosis ──────────────────────────────────────────────────────────────────
+async function runDiagnosis(e) {
   const sid = document.getElementById('dx-session-id').value.trim();
   if (!sid) return alert('Enter a Session ID');
-  const top_n = parseInt(document.getElementById('dx-topn').value) || 5;
+  const top_n         = parseInt(document.getElementById('dx-topn').value) || 5;
   const include_graph = document.getElementById('dx-graph').checked;
-  const btn = event.target; btn.disabled = true; btn.textContent = 'Running…';
+
+  const btn = e.target; btn.disabled = true; btn.textContent = 'Running\u2026';
   try {
     const result = await apiFetch('POST', `/api/v1/session/${sid}/diagnose`, { top_n, include_graph });
-    renderDiagnosis(result);
-  } finally { btn.disabled = false; btn.textContent = 'Run Diagnosis'; }
+    renderDiagnosis(result, sid);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Run Diagnosis';
+  }
 }
 
-function renderDiagnosis(result) {
+function renderDiagnosis(result, sid) {
   const el = document.getElementById('dx-response');
   if (!result.ok) {
-    el.innerHTML = `<div class="response-box"><div class="status-line status-err">Error ${result.status}</div><pre>${JSON.stringify(result.data, null, 2)}</pre></div>`;
+    el.innerHTML = `<div class="response-box"><div class="status-line status-err">
+      Error ${result.status}</div><pre>${esc(JSON.stringify(result.data,null,2))}</pre></div>`;
     return;
   }
   const d = result.data;
-  const sourceLabel = d.explanation_source === 'llm'
+
+  // Auto-fill downstream fields
+  if (d.id) {
+    const rgEl = document.getElementById('rg-diagnosis-id');
+    if (rgEl) rgEl.value = d.id;
+    const vfEl = document.getElementById('vf-diagnosis-id');
+    if (vfEl && !vfEl.value) vfEl.value = d.id;
+  }
+  if (sid) {
+    const rgSid = document.getElementById('rg-session-id');
+    if (rgSid && !rgSid.value) rgSid.value = sid;
+  }
+
+  const srcLabel = d.explanation_source === 'llm'
     ? '<span class="pill pill-green">LLM</span>'
     : '<span class="pill pill-yellow">Template</span>';
   const statusPill = d.status === 'completed'
     ? '<span class="pill pill-green">completed</span>'
-    : `<span class="pill pill-red">${d.status}</span>`;
+    : `<span class="pill pill-red">${esc(d.status)}</span>`;
 
   const explanation = d.explanation
-    ? `<div class="explanation-box">${d.explanation}</div>`
+    ? `<div class="explanation-box">${esc(d.explanation)}</div>`
     : '';
 
   const causes = (d.root_causes || []).map(c => {
     const pct = Math.round(c.score * 100);
+    const factors = Object.entries(c.contributing_factors || {})
+      .map(([k,v]) => `<span class="pill pill-muted">${esc(k)}: ${(v*100).toFixed(0)}%</span>`)
+      .join(' ');
     return `<div class="cause-item">
-      <div class="cause-rank">Rank #${c.rank} ${sourceLabel}
+      <div class="cause-rank">Rank #${c.rank} ${srcLabel}
         <span class="cause-score">${pct}%</span>
       </div>
-      <div class="cause-reason">${c.reason}</div>
+      <div class="cause-reason">${esc(c.reason)}</div>
+      ${factors ? `<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">${factors}</div>` : ''}
       <div class="score-bar-wrap"><div class="score-bar" style="width:${pct}%"></div></div>
     </div>`;
   }).join('');
+
+  const graphInfo = d.graph_snapshot
+    ? `<details style="margin-top:12px"><summary style="font-size:12px;color:var(--muted);cursor:pointer">
+         Graph snapshot (${Object.keys(d.graph_snapshot.nodes||{}).length || 0} nodes)
+       </summary>
+       <pre class="response-box" style="margin-top:6px;font-size:11px">${esc(JSON.stringify(d.graph_snapshot,null,2))}</pre></details>`
+    : '';
 
   el.innerHTML = `
     <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
       ${statusPill}
       <span class="pill pill-muted">${d.events_analysed || 0} events analysed</span>
       <span class="pill pill-muted">${(d.duration_ms || 0).toFixed(0)} ms</span>
-      <span style="font-size:11px;color:var(--muted);margin-left:4px">ID: ${d.id}</span>
-      <button class="copy-btn" onclick="navigator.clipboard.writeText('${d.id}'); this.textContent='Copied!'">Copy ID</button>
+      <span style="font-size:11px;color:var(--muted);margin-left:4px">ID:&nbsp;${esc(d.id)}</span>
+      <button class="copy-btn" onclick="navigator.clipboard.writeText(${JSON.stringify(d.id)});this.textContent='Copied!'">Copy ID</button>
     </div>
     ${explanation}
     <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Root Causes</div>
     ${causes || '<div class="empty">No root causes identified</div>'}
+    ${graphInfo}
   `;
 }
 
-// ── Verify ────────────────────────────────────────────────────────────────────
-async function runVerify() {
+// ── Verify ─────────────────────────────────────────────────────────────────────
+async function runVerify(e) {
   const sid = document.getElementById('vf-session-id').value.trim();
   if (!sid) return alert('Enter a Session ID');
+
   const body = {
     docker_image: document.getElementById('vf-image').value,
-    command: document.getElementById('vf-command').value,
+    command:      document.getElementById('vf-command').value,
   };
-  const btn = event.target; btn.disabled = true; btn.textContent = 'Running…';
+  const diagId = document.getElementById('vf-diagnosis-id').value.trim();
+  if (diagId) body.diagnosis_id = diagId;
+
+  const btn = e.target; btn.disabled = true; btn.textContent = 'Running\u2026';
   try {
     const result = await apiFetch('POST', `/api/v1/session/${sid}/verify`, body);
-    renderResponse('vf-response', result);
-  } finally { btn.disabled = false; btn.textContent = 'Run Verification'; }
+    renderVerify(result);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Run Verification';
+  }
 }
 
-// ── Regression ────────────────────────────────────────────────────────────────
-async function runRegression() {
-  const sid = document.getElementById('rg-session-id').value.trim();
+function renderVerify(result) {
+  const el = document.getElementById('vf-response');
+  if (!result.ok) {
+    el.innerHTML = `<div class="response-box"><div class="status-line status-err">
+      Error ${result.status}</div><pre>${esc(JSON.stringify(result.data,null,2))}</pre></div>`;
+    return;
+  }
+  const d = result.data;
+  const exitOk = d.exit_code === 0;
+  const statusPill = exitOk
+    ? '<span class="pill pill-green">passed</span>'
+    : `<span class="pill pill-red">exit ${d.exit_code ?? d.status}</span>`;
+
+  const stdout = d.stdout
+    ? `<div style="margin-top:12px"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">stdout</div>
+       <pre class="response-box" style="margin-top:0;max-height:180px">${esc(d.stdout)}</pre></div>`
+    : '';
+  const stderr = d.stderr
+    ? `<div style="margin-top:8px"><div style="font-size:11px;color:var(--red);margin-bottom:4px">stderr</div>
+       <pre class="response-box" style="margin-top:0;max-height:140px;border-color:rgba(248,81,73,.3)">${esc(d.stderr)}</pre></div>`
+    : '';
+
+  el.innerHTML = `
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      ${statusPill}
+      <span class="pill pill-muted">${esc(d.status)}</span>
+      ${d.docker_image ? `<span class="pill pill-blue">${esc(d.docker_image)}</span>` : ''}
+      <span style="font-size:11px;color:var(--muted)">ID:&nbsp;${esc(d.id)}</span>
+    </div>
+    ${d.command ? `<div style="font-size:12px;color:var(--muted);margin-bottom:8px">
+      <code style="color:var(--text)">${esc(d.command)}</code></div>` : ''}
+    ${stdout}${stderr}
+  `;
+}
+
+// ── Regression Guard ───────────────────────────────────────────────────────────
+async function runRegression(e) {
+  const sid    = document.getElementById('rg-session-id').value.trim();
   const diagId = document.getElementById('rg-diagnosis-id').value.trim();
-  if (!sid) return alert('Enter a Session ID');
+  if (!sid)    return alert('Enter a Session ID');
   if (!diagId) return alert('Enter a Diagnosis ID (run Diagnose first)');
+
   const body = {
     diagnosis_id: diagId,
     top_n_causes: parseInt(document.getElementById('rg-topn').value) || 3,
     docker_image: document.getElementById('rg-image').value,
     run_immediately: document.getElementById('rg-run').checked,
   };
-  const btn = event.target; btn.disabled = true; btn.textContent = 'Generating…';
+  const lang = document.getElementById('rg-language').value;
+  if (lang) body.language = lang;
+
+  const btn = e.target; btn.disabled = true; btn.textContent = 'Generating\u2026';
   try {
     const result = await apiFetch('POST', `/api/v1/session/${sid}/regression-guard`, body);
-    renderResponse('rg-response', result);
-  } finally { btn.disabled = false; btn.textContent = 'Generate Tests'; }
+    renderRegression(result);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Generate Tests';
+  }
+}
+
+function renderRegression(result) {
+  const el = document.getElementById('rg-response');
+  if (!result.ok) {
+    el.innerHTML = `<div class="response-box"><div class="status-line status-err">
+      Error ${result.status}</div><pre>${esc(JSON.stringify(result.data,null,2))}</pre></div>`;
+    return;
+  }
+  const d = result.data;
+  const summary = `
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+      <span class="pill pill-muted">${d.tests_generated} generated</span>
+      ${d.tests_run > 0 ? `<span class="pill pill-muted">${d.tests_run} run</span>` : ''}
+      ${d.tests_passed > 0 ? `<span class="pill pill-green">${d.tests_passed} passed</span>` : ''}
+      ${d.tests_failed > 0 ? `<span class="pill pill-red">${d.tests_failed} failed</span>` : ''}
+    </div>`;
+
+  const tests = (d.tests || []).map((t, i) => {
+    const genOk  = t.generation_status === 'completed';
+    const runCls = t.run_status === 'passed' ? 'pill-green' : t.run_status === 'failed' ? 'pill-red' : 'pill-muted';
+    const code   = t.test_code
+      ? `<div class="test-code"><pre>${esc(t.test_code)}</pre></div>`
+      : '';
+    const runOut = t.run_output
+      ? `<details style="margin-top:6px"><summary style="font-size:11px;color:var(--muted);cursor:pointer">run output</summary>
+           <pre class="response-box" style="margin-top:4px;font-size:11px;max-height:120px">${esc(t.run_output)}</pre>
+         </details>`
+      : '';
+    return `<div class="test-item">
+      <div class="test-header">
+        <span style="font-weight:600;font-size:13px">Test ${i+1}</span>
+        <span class="pill ${genOk ? 'pill-green' : 'pill-red'}">${esc(t.generation_status)}</span>
+        ${t.run_status ? `<span class="pill ${runCls}">${esc(t.run_status)}</span>` : ''}
+        ${t.test_framework ? `<span class="pill pill-blue">${esc(t.test_framework)}</span>` : ''}
+        ${t.target_file_path ? `<span style="font-size:11px;color:var(--muted)">${esc(t.target_file_path)}</span>` : ''}
+      </div>
+      ${code}${runOut}
+    </div>`;
+  }).join('');
+
+  el.innerHTML = summary + (tests || '<div class="empty">No tests generated</div>');
 }
 
 // ── Health ─────────────────────────────────────────────────────────────────────
 async function checkHealth() {
   const result = await apiFetch('GET', '/api/v1/health');
-  const dot = document.getElementById('health-dot');
-  const badge = document.getElementById('health-badge');
-  const txt = document.getElementById('health-text');
-  const isOk = result.ok && result.data.status === 'healthy';
+  const dot    = document.getElementById('health-dot');
+  const badge  = document.getElementById('health-badge');
+  const txt    = document.getElementById('health-text');
+  const isOk   = result.ok && result.data.status === 'healthy';
+
   dot.style.background = isOk ? 'var(--green)' : 'var(--red)';
-  txt.textContent = isOk ? 'healthy' : 'degraded';
-  badge.className = 'badge ' + (isOk ? 'green' : 'red');
+  txt.textContent      = isOk ? 'healthy' : (result.data.status || 'unreachable');
+  badge.className      = 'badge ' + (isOk ? 'green' : 'red');
 
   const checks = result.data.checks || {};
   const detail = document.getElementById('health-detail');
-  detail.innerHTML = Object.entries(checks).map(([name, info]) => {
+  const rows = Object.entries(checks).map(([name, info]) => {
     const ok = info.status === 'healthy';
     return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
-      <span style="width:10px;height:10px;border-radius:50%;background:${ok ? 'var(--green)' : 'var(--red)'};display:inline-block"></span>
-      <span style="font-weight:600;width:120px">${name}</span>
-      <span class="pill ${ok ? 'pill-green' : 'pill-red'}">${info.status}</span>
-      ${info.version ? `<span class="pill pill-muted">v${info.version}</span>` : ''}
-      ${info.environment ? `<span class="pill pill-muted">${info.environment}</span>` : ''}
-      ${info.error ? `<span style="color:var(--red);font-size:12px">${info.error}</span>` : ''}
+      <span style="width:10px;height:10px;border-radius:50%;background:${ok ? 'var(--green)' : 'var(--red)'};display:inline-block;flex-shrink:0"></span>
+      <span style="font-weight:600;min-width:110px">${esc(name)}</span>
+      <span class="pill ${ok ? 'pill-green' : 'pill-red'}">${esc(info.status)}</span>
+      ${info.version     ? `<span class="pill pill-muted">v${esc(info.version)}</span>` : ''}
+      ${info.environment ? `<span class="pill pill-muted">${esc(info.environment)}</span>` : ''}
+      ${info.error       ? `<span style="color:var(--red);font-size:12px">${esc(info.error)}</span>` : ''}
     </div>`;
-  }).join('') || '<div class="empty">No check data</div>';
+  });
+  // Remove border from last row
+  if (rows.length) {
+    rows[rows.length - 1] = rows[rows.length - 1].replace('border-bottom:1px solid var(--border)', 'border-bottom:none');
+  }
+  detail.innerHTML = rows.join('') || '<div class="empty">No check data returned</div>';
 }
 
 // ── Guide snippets ─────────────────────────────────────────────────────────────
@@ -858,20 +1076,101 @@ function renderGuideSnippets() {
   const SID = '00000000-0000-0000-0000-000000000001';
   const snippets = Object.entries(SCENARIOS).map(([k, fn]) => {
     const payload = fn(SID);
-    const label = k.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+    const label   = k.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
+    const json    = JSON.stringify(payload, null, 2);
     return `<div style="margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <span style="font-weight:600;font-size:13px">${label}</span>
+        <span style="font-weight:600;font-size:13px">${esc(label)}</span>
         <button class="copy-btn" onclick="navigator.clipboard.writeText(this.dataset.v);this.textContent='Copied!'"
-          data-v='${JSON.stringify(payload).replace(/'/g,"&#39;")}'>Copy</button>
+          data-v="${esc(json)}">Copy</button>
       </div>
-      <pre class="response-box" style="max-height:200px">${JSON.stringify(payload, null, 2)}</pre>
+      <pre class="response-box" style="max-height:200px">${esc(json)}</pre>
     </div>`;
   });
   el.innerHTML = snippets.join('');
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// ── WebSocket live feed ────────────────────────────────────────────────────────
+function connectWs(sid) {
+  if (wsConn) { wsConn.close(); wsConn = null; }
+  if (wsReconnectTimer) { clearTimeout(wsReconnectTimer); wsReconnectTimer = null; }
+
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const url   = `${proto}//${location.host}/ws/session/${sid}`;
+
+  document.getElementById('ws-feed-label').textContent = `Live \u2014 ${sid.slice(0,8)}\u2026`;
+
+  let attempts = 0;
+  function open() {
+    const ws = new WebSocket(url);
+    wsConn = ws;
+
+    ws.onopen = () => {
+      attempts = 0;
+      setWsDot(true);
+      pushWsMsg('connected', 'subscribed');
+      // Start ping loop
+      ws._ping = setInterval(() => {
+        if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'ping' }));
+      }, 25000);
+    };
+
+    ws.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'pong') return; // skip keepalive noise
+        const label = msg.payload
+          ? Object.entries(msg.payload).map(([k,v]) => `${k}:${typeof v === 'string' ? v.slice(0,32) : v}`).join(' ')
+          : '';
+        pushWsMsg(msg.type, label);
+      } catch {}
+    };
+
+    ws.onerror = () => setWsDot(false);
+
+    ws.onclose = () => {
+      clearInterval(ws._ping);
+      setWsDot(false);
+      if (attempts < 5) {
+        attempts++;
+        wsReconnectTimer = setTimeout(open, Math.min(2000 * attempts, 10000));
+        pushWsMsg('reconnect', `attempt ${attempts} in ${Math.min(2 * attempts, 10)}s`);
+      } else {
+        pushWsMsg('disconnected', 'max retries reached');
+      }
+    };
+  }
+  open();
+}
+
+function setWsDot(connected) {
+  const dot = document.getElementById('ws-feed-dot');
+  dot.className = connected ? 'connected' : '';
+}
+
+function pushWsMsg(type, label) {
+  const container = document.getElementById('ws-events');
+  const t = new Date().toLocaleTimeString();
+  const div = document.createElement('div');
+  div.className = 'ws-msg';
+  div.innerHTML = `<span class="ws-type">${esc(type)}</span>
+    <span class="ws-time">${esc(t)}</span>
+    ${label ? `<br/><span style="color:var(--text)">${esc(label)}</span>` : ''}`;
+  container.prepend(div);
+  // Keep at most 30 messages
+  while (container.children.length > 30) container.lastChild.remove();
+
+  // Expand feed if minimised when new messages arrive
+  if (wsFeedMinimised) toggleWsFeed();
+}
+
+function toggleWsFeed() {
+  wsFeedMinimised = !wsFeedMinimised;
+  document.getElementById('ws-feed').classList.toggle('minimised', wsFeedMinimised);
+  document.getElementById('ws-toggle').innerHTML = wsFeedMinimised ? '+' : '&minus;';
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   genSessionId();
   fillScenario('full_chain');
