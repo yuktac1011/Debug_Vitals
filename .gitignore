@@ -1,4 +1,4 @@
-# -- Secrets & environment — NEVER commit these -------------------------------
+# -- Secrets & environment ï¿½ NEVER commit these -------------------------------
 .env
 .env.*
 !.env.example

@@ -1,8 +1,30 @@
 {
-  "projectType": "Node.js",
-  "runtime": "v22.18.0",
-  "files": [
-    "package.json"
-  ],
-  "initializedAt": "2026-09-26T21:21:21.196Z"
+  "initializedAt": "2026-09-26T21:21:21.196Z",
+  "environment": {
+    "timestamp": "2026-09-26T22:06:50.420Z",
+    "os": {
+      "platform": "win32",
+      "release": "10.0.26200",
+      "architecture": "x64",
+      "hostname": "MSI"
+    },
+    "runtime": {
+      "node": "v22.18.0",
+      "python": "Python 3.12.9",
+      "java": "21.0.8",
+      "npm": "11.12.1",
+      "pnpm": "10.28.0",
+      "yarn": null
+    },
+    "shell": "C:\\WINDOWS\\system32\\cmd.exe",
+    "projectType": "Node.js",
+    "packageManager": "npm",
+    "environmentFiles": {
+      "present": false,
+      "files": []
+    },
+    "configFiles": [
+      "package.json"
+    ]
+  }
 }
