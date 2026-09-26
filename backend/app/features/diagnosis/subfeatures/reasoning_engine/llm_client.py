@@ -1,13 +1,17 @@
 """
-LLM client for the reasoning engine.
+LLM client for the reasoning engine — backed by Groq.
 
-Wraps OpenAI API calls with:
-- Explicit timeout (from settings)
-- Exponential backoff retry (up to settings.openai_max_retries)
+Groq exposes an OpenAI-compatible /chat/completions endpoint, so the wire
+format is identical to the OpenAI API; only the base URL and API key differ.
+Model: openai/gpt-oss-120b (configurable via GROQ_MODEL env var).
+
+Reliability guarantees:
+- Explicit timeout (GROQ_TIMEOUT_SECONDS)
+- Exponential backoff retry (up to GROQ_MAX_RETRIES)
 - Automatic fallback to template-based explanation on any failure
 
 The caller never needs to handle LLM errors — this module guarantees
-a string explanation is always returned, regardless of LLM availability.
+a string explanation is always returned, regardless of LLM/Groq availability.
 
 A diagnosis is NEVER blocked by an LLM outage.
 """
@@ -82,10 +86,11 @@ async def generate_explanation(
             session_id=session_id,
             total_events=total_events,
             graph_edge_count=graph_edge_count,
-            api_key=settings.openai_api_key.get_secret_value(),
-            model=settings.openai_model,
-            timeout=settings.openai_timeout_seconds,
-            max_retries=settings.openai_max_retries,
+            api_key=settings.groq_api_key.get_secret_value(),
+            base_url=settings.groq_base_url,
+            model=settings.groq_model,
+            timeout=settings.groq_timeout_seconds,
+            max_retries=settings.groq_max_retries,
         )
         return explanation, "llm"
 
@@ -110,13 +115,17 @@ async def _call_llm_with_retry(
     total_events: int,
     graph_edge_count: int,
     api_key: str,
+    base_url: str,
     model: str,
     timeout: float,
     max_retries: int,
 ) -> str:
     """
-    Internal async function that calls the OpenAI API with retry.
+    Internal async function that calls the Groq chat completions API with retry.
     Raises on final failure so the caller can activate the fallback.
+
+    Groq's API is OpenAI-compatible: same JSON body, same response shape,
+    different base URL and Bearer token.
     """
 
     @retry(
@@ -128,9 +137,10 @@ async def _call_llm_with_retry(
     )
     async def _call() -> str:
         user_prompt = _build_prompt(root_causes, session_id, total_events, graph_edge_count)
+        url = f"{base_url.rstrip('/')}/chat/completions"
         async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(
-                "https://api.openai.com/v1/chat/completions",
+                url,
                 headers={
                     "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json",

@@ -7,7 +7,7 @@ Uses Pydantic Settings for strict validation at import time.
 from functools import lru_cache
 from typing import Literal, List
 
-from pydantic import AnyHttpUrl, SecretStr, field_validator, model_validator
+from pydantic import SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -42,8 +42,10 @@ class Settings(BaseSettings):
 
     # ── Security ───────────────────────────────────────────────────────────────
     secret_key: SecretStr  # used for signing internal tokens / HMAC
-    allowed_origins: List[str]  # explicit list; wildcard rejected below
-    allowed_hosts: List[str] = ["localhost", "127.0.0.1"]
+    # Stored as plain str to avoid pydantic-settings JSON-parsing List fields.
+    # Use the .allowed_origins_list / .allowed_hosts_list properties everywhere.
+    allowed_origins: str  # comma-separated, e.g. "http://localhost:3000,http://localhost:5173"
+    allowed_hosts: str = "localhost,127.0.0.1"
 
     # Rate limiting (requests per window)
     rate_limit_events_per_minute: int = 60
@@ -51,11 +53,13 @@ class Settings(BaseSettings):
     rate_limit_verify_per_minute: int = 5
     rate_limit_regression_per_minute: int = 5
 
-    # ── LLM (required for diagnosis; fallback activates on timeout/error) ──────
-    openai_api_key: SecretStr
-    openai_model: str = "gpt-4o-mini"
-    openai_timeout_seconds: float = 30.0
-    openai_max_retries: int = 3
+    # ── LLM — Groq (required for diagnosis; fallback activates on timeout/error) ─
+    # Groq exposes an OpenAI-compatible chat completions API at a different base URL.
+    groq_api_key: SecretStr
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+    groq_model: str = "openai/gpt-oss-120b"
+    groq_timeout_seconds: float = 30.0
+    groq_max_retries: int = 3
 
     # ── Celery / Background jobs ───────────────────────────────────────────────
     celery_broker_url: SecretStr  # usually same Redis URL
@@ -78,23 +82,14 @@ class Settings(BaseSettings):
 
     # ── Validators ────────────────────────────────────────────────────────────
 
-    @field_validator("allowed_origins", mode="before")
-    @classmethod
-    def parse_origins(cls, v):
-        """Accept comma-separated string or list."""
-        if isinstance(v, str):
-            return [o.strip() for o in v.split(",") if o.strip()]
-        return v
-
-    @field_validator("allowed_origins")
-    @classmethod
-    def reject_wildcard_origins(cls, v: List[str]) -> List[str]:
-        if "*" in v:
+    @model_validator(mode="after")
+    def reject_wildcard_origins(self) -> "Settings":
+        if "*" in self.allowed_origins_list:
             raise ValueError(
                 "Wildcard '*' is not permitted in ALLOWED_ORIGINS. "
                 "Specify explicit origins."
             )
-        return v
+        return self
 
     @model_validator(mode="after")
     def reject_debug_in_production(self) -> "Settings":
@@ -104,6 +99,16 @@ class Settings(BaseSettings):
                 "Set ENVIRONMENT=development or DEBUG=false."
             )
         return self
+
+    @property
+    def allowed_origins_list(self) -> List[str]:
+        """Parsed list of allowed CORS origins."""
+        return [o.strip() for o in self.allowed_origins.split(",") if o.strip()]
+
+    @property
+    def allowed_hosts_list(self) -> List[str]:
+        """Parsed list of allowed hosts."""
+        return [h.strip() for h in self.allowed_hosts.split(",") if h.strip()]
 
     @property
     def is_production(self) -> bool:
