@@ -25,6 +25,7 @@ from sqlalchemy import (
     Text,
     Index,
     UniqueConstraint,
+    ForeignKey,
     func,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB
@@ -41,7 +42,7 @@ class Event(Base):
     )
     session_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        # FK declared as string to avoid circular import ordering issues
+        ForeignKey("diagnostic_sessions.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )

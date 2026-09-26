@@ -1,33 +1,31 @@
-import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from "next"
+import { Inter, JetBrains_Mono } from "next/font/google"
+import "./globals.css"
 
 const inter = Inter({
-  variable: "--font-inter",
   subsets: ["latin"],
+  variable: "--font-inter",
   weight: ["400", "500", "600", "700"],
   display: "swap",
-});
+})
 
-const jbMono = JetBrains_Mono({
-  variable: "--font-jb-mono",
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
+  variable: "--font-mono-jb",
   weight: ["400", "500"],
   display: "swap",
-});
+})
 
 export const metadata: Metadata = {
-  title: "AgentDoctor — Diagnose the cause, not just the symptom",
+  title: "AgentDoctor — Diagnose the cause, not just the symptom.",
   description:
-    "AgentDoctor connects agent actions, code changes, environment state, and CI failures into a causal chain — so you understand what actually broke and why.",
-};
+    "Developer diagnostic tool for AI-assisted coding. Connects agent actions → code changes → environment → tests → CI failures.",
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jbMono.variable}`}>
-      <body style={{ background: "#F9FBFB", color: "#1C2222", minHeight: "100dvh" }}>
-        {children}
-      </body>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <body>{children}</body>
     </html>
-  );
+  )
 }

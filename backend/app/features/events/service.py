@@ -2,7 +2,7 @@
 Event service — business logic for event ingestion.
 
 Responsibilities:
-- Validate session existence
+- Auto-create a DiagnosticSession row on first use (upsert-style)
 - Enforce per-session event cap
 - Deduplicate events (by external_id or content hash)
 - Route each event to the appropriate normaliser (agent_activity, git_watcher,
@@ -17,16 +17,18 @@ import structlog
 import uuid
 from typing import List, Optional
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.settings import get_settings
-from app.core.exceptions import NotFoundError, PayloadTooLargeError, ValidationError
+from app.core.exceptions import PayloadTooLargeError, ValidationError
 from app.features.events.repository import EventRepository
 from app.features.events.schemas import EventBatchCreate, EventBatchResponse, EventCreate, EventResponse
 from app.features.events.subfeatures.agent_activity.capture import normalise_agent_action
 from app.features.events.subfeatures.git_watcher.diff_parser import normalise_git_diff
 from app.features.events.subfeatures.env_scanner.scanner import normalise_env_snapshot
 from app.models.event import Event
+from app.models.session import DiagnosticSession
 
 logger = structlog.get_logger(__name__)
 
@@ -67,6 +69,17 @@ class EventService:
             )
 
         target_session_id = session_id or batch.events[0].session_id
+
+        # Auto-create the session row if it doesn't exist yet.
+        # This allows callers to use any UUID as a session identifier without
+        # having to call a separate session-creation endpoint first.
+        existing = await self._db.execute(
+            select(DiagnosticSession).where(DiagnosticSession.id == target_session_id)
+        )
+        if existing.scalar_one_or_none() is None:
+            self._db.add(DiagnosticSession(id=target_session_id, status="active"))
+            await self._db.flush()
+            logger.info("Auto-created session", session_id=str(target_session_id))
 
         # Enforce per-session cap
         current_count = await self._repo.count_by_session(target_session_id)

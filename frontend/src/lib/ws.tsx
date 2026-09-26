@@ -1,148 +1,97 @@
-"use client";
+"use client"
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react"
 
-// ── Types matching BACKEND.md WebSocket event shapes ──────────────
+type WsStatus = "connecting" | "connected" | "disconnected"
 
-export type ConnectionState = "connecting" | "open" | "reconnecting" | "closed";
-
-export type WsEventType =
-  | "diagnosis.update"
-  | "timeline.event"
-  | "verification.update"
-  | "regression.result"
-  | "session.started"
-  | "session.ended";
-
-export interface WsEvent<T = unknown> {
-  type: WsEventType;
-  session_id: string;
-  payload: T;
-  timestamp: string;
+interface WsMessage {
+  type: string
+  session_id?: string
+  payload?: Record<string, unknown>
 }
 
 interface WsContextValue {
-  connectionState: ConnectionState;
-  latencyMs: number | null;
-  subscribe: (handler: (event: WsEvent) => void) => () => void;
-  send: (data: unknown) => void;
+  status: WsStatus
+  lastMessage: WsMessage | null
+  latencyMs: number | null
+  send: (msg: object) => void
 }
 
-const WsContext = createContext<WsContextValue | null>(null);
+const WsContext = createContext<WsContextValue>({
+  status: "disconnected",
+  lastMessage: null,
+  latencyMs: null,
+  send: () => {},
+})
 
-const BACKEND_WS_URL =
-  process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8000/ws";
-
-const RECONNECT_DELAY_MS = 2000;
-const MAX_RECONNECT_ATTEMPTS = 10;
-const PING_INTERVAL_MS = 30_000;
-
-interface WsProviderProps {
-  sessionId: string;
-  children: React.ReactNode;
-}
-
-export function WsProvider({ sessionId, children }: WsProviderProps) {
-  const [connectionState, setConnectionState] =
-    useState<ConnectionState>("connecting");
-  const [latencyMs, setLatencyMs] = useState<number | null>(null);
-
-  const wsRef = useRef<WebSocket | null>(null);
-  const handlersRef = useRef<Set<(event: WsEvent) => void>>(new Set());
-  const reconnectAttempts = useRef(0);
-  const pingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pingTimestampRef = useRef<number | null>(null);
+export function WsProvider({ sessionId, children }: { sessionId: string; children: React.ReactNode }) {
+  const [status, setStatus]           = useState<WsStatus>("connecting")
+  const [lastMessage, setLastMessage] = useState<WsMessage | null>(null)
+  const [latencyMs, setLatencyMs]     = useState<number | null>(null)
+  const wsRef     = useRef<WebSocket | null>(null)
+  const pingTimer = useRef<ReturnType<typeof setInterval> | null>(null)
+  const attempts  = useRef(0)
 
   const connect = useCallback(() => {
-    const url = `${BACKEND_WS_URL}/session/${sessionId}`;
-    const ws = new WebSocket(url);
-    wsRef.current = ws;
+    if (typeof window === "undefined") return
+    const wsUrl = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/ws/session/${sessionId}`
+    const ws = new WebSocket(wsUrl)
+    wsRef.current = ws
 
     ws.onopen = () => {
-      setConnectionState("open");
-      reconnectAttempts.current = 0;
-
-      // Start ping/pong for latency tracking
-      pingTimerRef.current = setInterval(() => {
+      attempts.current = 0
+      setStatus("connected")
+      pingTimer.current = setInterval(() => {
         if (ws.readyState === WebSocket.OPEN) {
-          pingTimestampRef.current = Date.now();
-          ws.send(JSON.stringify({ type: "ping" }));
+          ws.send(JSON.stringify({ type: "ping", ts: Date.now() }))
         }
-      }, PING_INTERVAL_MS);
-    };
+      }, 25_000)
+    }
 
-    ws.onmessage = (ev) => {
-      let data: WsEvent | { type: "pong" };
+    ws.onmessage = (e) => {
       try {
-        data = JSON.parse(ev.data as string);
-      } catch {
-        return;
-      }
-
-      if ("type" in data && data.type === "pong") {
-        if (pingTimestampRef.current != null) {
-          setLatencyMs(Date.now() - pingTimestampRef.current);
-          pingTimestampRef.current = null;
+        const msg: WsMessage & { ts?: number } = JSON.parse(e.data)
+        if (msg.type === "pong" && msg.ts) {
+          setLatencyMs(Date.now() - msg.ts)
+          return
         }
-        return;
-      }
+        setLastMessage(msg)
+      } catch {}
+    }
 
-      const event = data as WsEvent;
-      handlersRef.current.forEach((h) => h(event));
-    };
+    ws.onerror = () => setStatus("disconnected")
 
     ws.onclose = () => {
-      if (pingTimerRef.current) clearInterval(pingTimerRef.current);
-
-      if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
-        setConnectionState("reconnecting");
-        reconnectAttempts.current += 1;
-        setTimeout(connect, RECONNECT_DELAY_MS);
-      } else {
-        setConnectionState("closed");
+      if (pingTimer.current) clearInterval(pingTimer.current)
+      setStatus("disconnected")
+      if (attempts.current < 8) {
+        attempts.current++
+        setTimeout(connect, Math.min(1_000 * 2 ** attempts.current, 30_000))
       }
-    };
-
-    ws.onerror = () => {
-      ws.close();
-    };
-  }, [sessionId]);
+    }
+  }, [sessionId])
 
   useEffect(() => {
-    connect();
+    connect()
     return () => {
-      if (pingTimerRef.current) clearInterval(pingTimerRef.current);
-      wsRef.current?.close();
-    };
-  }, [connect]);
-
-  const subscribe = useCallback((handler: (event: WsEvent) => void) => {
-    handlersRef.current.add(handler);
-    return () => handlersRef.current.delete(handler);
-  }, []);
-
-  const send = useCallback((data: unknown) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(data));
+      if (pingTimer.current) clearInterval(pingTimer.current)
+      wsRef.current?.close()
     }
-  }, []);
+  }, [connect])
+
+  const send = useCallback((msg: object) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify(msg))
+    }
+  }, [])
 
   return (
-    <WsContext.Provider value={{ connectionState, latencyMs, subscribe, send }}>
+    <WsContext.Provider value={{ status, lastMessage, latencyMs, send }}>
       {children}
     </WsContext.Provider>
-  );
+  )
 }
 
 export function useWs() {
-  const ctx = useContext(WsContext);
-  if (!ctx) throw new Error("useWs must be used inside <WsProvider>");
-  return ctx;
+  return useContext(WsContext)
 }
