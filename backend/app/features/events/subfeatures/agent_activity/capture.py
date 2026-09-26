@@ -62,13 +62,14 @@ def normalise_agent_action(payload: Dict[str, Any]) -> Dict[str, Any]:
     raw = dict(payload)
 
     # Attempt to detect action type
-    tool_name: Optional[str] = (
+    raw_tool = (
         payload.get("tool_name")
         or payload.get("tool")
         or payload.get("function")
         or payload.get("name")
     )
-    if isinstance(tool_name, str):
+    tool_name: Optional[str] = raw_tool if isinstance(raw_tool, str) else None
+    if tool_name:
         tool_name = tool_name.strip()[:128]
 
     action_type = _resolve_action_type(tool_name, payload)
@@ -99,7 +100,7 @@ def normalise_agent_action(payload: Dict[str, Any]) -> Dict[str, Any]:
 
 def _resolve_action_type(tool_name: Optional[str], payload: Dict[str, Any]) -> str:
     """Map tool_name to a canonical action_type string."""
-    if tool_name:
+    if tool_name and isinstance(tool_name, str):
         normalised_name = tool_name.lower().replace("-", "_").replace(" ", "_")
         if normalised_name in _TOOL_TYPE_MAP:
             return _TOOL_TYPE_MAP[normalised_name]

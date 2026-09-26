@@ -68,7 +68,7 @@ class RegressionGuardService:
                 generation_status="generated",
                 run_status=None,
                 is_active=True,
-                metadata=generated["metadata"],
+                meta=generated["metadata"],
                 created_at=datetime.now(timezone.utc),
             )
             self._db.add(orm_test)

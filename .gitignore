@@ -1,0 +1,95 @@
+# -- Secrets & environment — NEVER commit these -------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# -- Python --------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+pip-wheel-metadata/
+*.whl
+
+# -- Virtual environments ------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+.env.bak
+
+# -- pytest / coverage ---------------------------------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.lcov
+junit*.xml
+
+# -- mypy / type checkers ------------------------------------------------------
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+
+# -- Ruff / linters ------------------------------------------------------------
+.ruff_cache/
+
+# -- Docker local overrides ----------------------------------------------------
+docker-compose.override.yml
+docker-compose.local.yml
+
+# -- Node / Frontend (if added later) -----------------------------------------
+node_modules/
+.npm/
+.yarn/
+.pnp.js
+.pnp.cjs
+.next/
+out/
+.nuxt/
+.output/
+dist/
+.cache/
+
+# -- IDE & editor -------------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -- Logs ---------------------------------------------------------------------
+*.log
+logs/
+pip-log.txt
+
+# -- OS artifacts -------------------------------------------------------------
+.AppleDouble
+.LSOverride
+ehthumbs.db
+
+# -- Celery --------------------------------------------------------------------
+celerybeat-schedule
+celerybeat.pid
+
+# -- Temporary / scratch -------------------------------------------------------
+*.tmp
+*.bak
+*.orig
+.bob/

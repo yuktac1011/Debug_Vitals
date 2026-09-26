@@ -50,7 +50,8 @@ class RegressionTest(Base):
     run_output: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Metadata about the generation (which root cause it covers, etc.)
-    metadata: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    # Named 'meta' in DB to avoid collision with SQLAlchemy's reserved 'metadata' attribute.
+    meta: Mapped[Optional[dict]] = mapped_column("metadata", JSONB, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

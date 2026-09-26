@@ -1,0 +1,124 @@
+version: "3.9"
+
+# ── Shared environment (loaded from .env) ────────────────────────────────────
+x-common-env: &common-env
+  env_file: .env
+
+services:
+  # ── PostgreSQL ───────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: debugvitals
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: debugvitals
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U debugvitals"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ─────────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── API server ────────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      target: development
+    restart: unless-stopped
+    <<: *common-env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://debugvitals:changeme@db:5432/debugvitals
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app  # live reload in development
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ── Celery worker (reasoning queue) ──────────────────────────────────────────
+  worker_reasoning:
+    build:
+      context: .
+      target: development
+    restart: unless-stopped
+    <<: *common-env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://debugvitals:changeme@db:5432/debugvitals
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    command: celery -A app.workers.celery_app:celery_app worker
+      --queues=reasoning
+      --concurrency=2
+      --loglevel=info
+      --without-gossip
+      --without-mingle
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+
+  # ── Celery worker (verification queue) ───────────────────────────────────────
+  worker_verification:
+    build:
+      context: .
+      target: development
+    restart: unless-stopped
+    <<: *common-env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://debugvitals:changeme@db:5432/debugvitals
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+    # Docker-in-Docker: mount the Docker socket so this worker can spawn containers
+    # In production, use a dedicated container runner service instead.
+    command: celery -A app.workers.celery_app:celery_app worker
+      --queues=verification
+      --concurrency=2
+      --loglevel=info
+    volumes:
+      - ./app:/app/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -43,7 +43,7 @@ class RegressionTestItem(BaseModel):
     run_status: Optional[str] = None
     run_output: Optional[str] = None
     is_active: bool
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = Field(None, alias="meta")
     created_at: datetime
     last_run_at: Optional[datetime] = None
 
