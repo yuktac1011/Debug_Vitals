@@ -3,8 +3,7 @@
 ## Stack
 - Next.js
 - React
-- Tailwind CSS
-- Lucide Icons
+- Tailwind, shadcn, GSap CSS
 - WebSocket client for real-time diagnosis/timeline updates
 
 ## Platform
