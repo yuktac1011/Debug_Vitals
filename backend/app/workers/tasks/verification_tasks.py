@@ -10,6 +10,7 @@ Reliability guarantees mirror reasoning_tasks.py:
 
 import asyncio
 import logging
+import structlog
 import uuid
 
 from celery import Task
@@ -19,7 +20,7 @@ from celery.signals import worker_shutdown
 from app.workers.celery_app import celery_app
 from app.config.settings import get_settings
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # Track in-flight verification IDs so we can mark them interrupted on shutdown
 _in_flight_verifications: set = set()

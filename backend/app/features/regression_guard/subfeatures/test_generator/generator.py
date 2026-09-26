@@ -10,10 +10,11 @@ language detected in the session's environment snapshot events.
 """
 
 import logging
+import structlog
 import uuid
 from typing import Any, Dict, List, Optional
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # Supported test frameworks and their file extensions
 _FRAMEWORK_MAP = {

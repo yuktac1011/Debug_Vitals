@@ -11,6 +11,7 @@ Pipeline:
 """
 
 import logging
+import structlog
 import time
 import uuid
 from datetime import datetime, timezone
@@ -27,7 +28,7 @@ from app.features.diagnosis.subfeatures.root_cause_ranker.ranker import rank_roo
 from app.features.events.repository import EventRepository
 from app.models.diagnosis import Diagnosis
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class DiagnosisService:

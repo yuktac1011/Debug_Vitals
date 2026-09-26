@@ -30,6 +30,7 @@ on graph topology.
 """
 
 import logging
+import structlog
 import uuid
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -37,7 +38,7 @@ import networkx as nx
 
 from app.models.event import Event
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 

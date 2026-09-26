@@ -18,6 +18,7 @@ A diagnosis is NEVER blocked by an LLM outage.
 
 import asyncio
 import logging
+import structlog
 from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
@@ -32,7 +33,7 @@ from tenacity import (
 from app.config.settings import get_settings
 from app.features.diagnosis.subfeatures.reasoning_engine.templates import render_explanation
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 _SYSTEM_PROMPT = """You are an expert software reliability engineer analysing an AI
 coding agent session to identify the root cause of failures.

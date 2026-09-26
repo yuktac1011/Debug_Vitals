@@ -22,7 +22,7 @@ from starlette.types import ASGIApp
 
 from app.config.settings import get_settings
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class RequestIdMiddleware(BaseHTTPMiddleware):

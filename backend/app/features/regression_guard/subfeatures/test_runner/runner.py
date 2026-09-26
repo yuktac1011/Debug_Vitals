@@ -5,6 +5,7 @@ consistency — all executed code goes through the same sandboxed path.
 """
 
 import logging
+import structlog
 from typing import Any, Dict, Optional
 
 from app.features.verification.subfeatures.container_runner.docker_runner import (
@@ -12,7 +13,7 @@ from app.features.verification.subfeatures.container_runner.docker_runner import
     run_in_container,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 async def run_regression_test(

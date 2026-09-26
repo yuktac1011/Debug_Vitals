@@ -12,11 +12,15 @@ NO business logic lives here — this file is pure wiring.
 """
 
 import logging
+import structlog
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 
 from app.config.logging_config import configure_logging
 from app.config.redis_config import close_redis
@@ -39,7 +43,7 @@ from app.features.regression_guard.router import router as regression_guard_rout
 from app.features.health.router import router as health_router
 from app.websockets.handlers import router as ws_router
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @asynccontextmanager
@@ -117,6 +121,15 @@ def create_app() -> FastAPI:
     app.include_router(verification_router, prefix=prefix)
     app.include_router(regression_guard_router, prefix=prefix)
     app.include_router(ws_router)  # WebSocket routes don't use the REST prefix
+
+    # ── Static frontend ───────────────────────────────────────────────────────
+    static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
+    if os.path.isdir(static_dir):
+        app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+        @app.get("/", include_in_schema=False)
+        async def serve_frontend():
+            return FileResponse(os.path.join(static_dir, "index.html"))
 
     logger.debug("All routers registered")
     return app

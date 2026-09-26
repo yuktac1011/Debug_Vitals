@@ -45,6 +45,7 @@ Factor weights are tunable constants defined below.
 """
 
 import logging
+import structlog
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -52,7 +53,7 @@ import networkx as nx
 
 from app.models.event import Event
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # ── Factor weights — tune these constants to adjust ranking behaviour ──────────
 _W_OUT_DEGREE = 0.20

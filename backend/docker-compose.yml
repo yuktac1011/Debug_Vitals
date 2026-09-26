@@ -1,5 +1,3 @@
-version: "3.9"
-
 # ── Shared environment (loaded from .env) ────────────────────────────────────
 x-common-env: &common-env
   env_file: .env

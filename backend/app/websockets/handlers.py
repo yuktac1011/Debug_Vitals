@@ -20,13 +20,14 @@ Message format (client → server):
 """
 
 import logging
+import structlog
 import uuid
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from app.websockets.manager import manager
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/ws", tags=["websockets"])
 
 

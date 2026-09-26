@@ -3,6 +3,7 @@ Verification service — orchestrates isolated container reruns.
 """
 
 import logging
+import structlog
 import uuid
 from datetime import datetime, timezone
 
@@ -12,7 +13,7 @@ from app.features.verification.schemas import VerificationResponse, VerifyReques
 from app.features.verification.subfeatures.container_runner.docker_runner import run_in_container
 from app.models.verification import Verification
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class VerificationService:

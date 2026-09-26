@@ -9,6 +9,7 @@ Design rules:
 """
 
 import logging
+import structlog
 import traceback
 from typing import Any, Dict, Optional
 
@@ -18,7 +19,7 @@ from fastapi.responses import JSONResponse
 
 from app.config.settings import get_settings
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 # ── Base exception ────────────────────────────────────────────────────────────

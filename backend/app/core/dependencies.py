@@ -7,6 +7,7 @@ Shared FastAPI dependencies injected via Depends().
 """
 
 import logging
+import structlog
 import time
 from typing import AsyncGenerator
 
@@ -20,7 +21,7 @@ from app.config.settings import get_settings
 from app.core.exceptions import RateLimitError
 from app.core.security import rate_limit_key
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 # ── Database ──────────────────────────────────────────────────────────────────

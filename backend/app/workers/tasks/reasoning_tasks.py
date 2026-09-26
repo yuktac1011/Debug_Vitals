@@ -13,6 +13,7 @@ Reliability guarantees:
 
 import asyncio
 import logging
+import structlog
 import uuid
 from datetime import datetime, timezone
 
@@ -22,7 +23,7 @@ from celery.exceptions import MaxRetriesExceededError
 from app.workers.celery_app import celery_app
 from app.config.settings import get_settings
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class DiagnosisTask(Task):

@@ -3,6 +3,7 @@ Regression guard service — generates and optionally runs regression tests.
 """
 
 import logging
+import structlog
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
@@ -22,7 +23,7 @@ from app.features.regression_guard.subfeatures.test_runner.runner import run_reg
 from app.models.regression_test import RegressionTest
 from app.core.exceptions import NotFoundError
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class RegressionGuardService:

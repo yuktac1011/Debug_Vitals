@@ -7,6 +7,7 @@ A 503 is returned if any dependency is unhealthy — not just 200 blindly.
 """
 
 import logging
+import structlog
 from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, status
@@ -18,7 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config.settings import get_settings
 from app.core.dependencies import get_db, get_redis
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/health", tags=["health"])
 
 

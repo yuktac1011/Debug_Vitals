@@ -13,6 +13,7 @@ No database queries are made directly — all DB access goes through EventReposi
 """
 
 import logging
+import structlog
 import uuid
 from typing import List, Optional
 
@@ -27,7 +28,7 @@ from app.features.events.subfeatures.git_watcher.diff_parser import normalise_gi
 from app.features.events.subfeatures.env_scanner.scanner import normalise_env_snapshot
 from app.models.event import Event
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # Map event_type → normaliser function
 _NORMALISERS = {

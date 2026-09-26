@@ -4,6 +4,7 @@ Called internally by the diagnosis service; not a public-facing endpoint.
 """
 
 import logging
+import structlog
 import uuid
 from typing import Any, Dict
 
@@ -16,7 +17,7 @@ from app.features.correlation.subfeatures.graph_builder.builder import (
 )
 from app.features.events.repository import EventRepository
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class CorrelationService:

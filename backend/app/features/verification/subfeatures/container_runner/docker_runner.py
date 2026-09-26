@@ -15,6 +15,7 @@ These limits apply to EVERY container run — there is no bypass path.
 
 import asyncio
 import logging
+import structlog
 import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional, Tuple
@@ -22,7 +23,7 @@ from typing import Any, Dict, Optional, Tuple
 from app.config.settings import get_settings
 from app.core.exceptions import ExternalServiceError
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # Allowlist of Docker images that are permitted for verification runs.
 # Any image not in this set is rejected with a clear error — this prevents

@@ -14,13 +14,14 @@ Design:
 
 import asyncio
 import logging
+import structlog
 import uuid
 from collections import defaultdict
 from typing import Any, Dict, Optional, Set
 
 from fastapi import WebSocket
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class ConnectionManager:
