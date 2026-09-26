@@ -1,23 +1,16 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Serif, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const ibmPlexSerif = IBM_Plex_Serif({
-  variable: "--font-ibm-serif",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const ibmPlexSans = IBM_Plex_Sans({
-  variable: "--font-ibm-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-ibm-mono",
+const jbMono = JetBrains_Mono({
+  variable: "--font-jb-mono",
   subsets: ["latin"],
   weight: ["400", "500"],
   display: "swap",
@@ -26,20 +19,13 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "AgentDoctor — Diagnose the cause, not just the symptom",
   description:
-    "AgentDoctor surfaces root causes, evidence, and verification for agent-driven failures — not just symptoms.",
+    "AgentDoctor connects agent actions, code changes, environment state, and CI failures into a causal chain — so you understand what actually broke and why.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${ibmPlexSerif.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-ink text-text">
+    <html lang="en" className={`${inter.variable} ${jbMono.variable}`}>
+      <body style={{ background: "#F9FBFB", color: "#1C2222", minHeight: "100dvh" }}>
         {children}
       </body>
     </html>

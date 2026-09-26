@@ -1,45 +1,40 @@
 import React from "react";
 
-type ButtonVariant = "primary" | "secondary";
+type Variant = "primary" | "secondary" | "ghost";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
+  variant?: Variant;
   label: string;
-  /** On parchment surface, use surface="parchment" to invert colors correctly */
-  surface?: "dark" | "parchment";
+  size?: "sm" | "md";
 }
 
-/**
- * DRD §3.3 — text-labeled only, names the exact action, never icon-only.
- * Primary: filled. Secondary: outline only.
- * radius: 2px (DRD §2.3)
- */
 export function Button({
-  variant = "primary",
+  variant = "secondary",
   label,
-  surface = "dark",
+  size = "md",
   className = "",
   ...props
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center px-4 py-2 text-[13px] font-sans font-medium leading-none rounded-[2px] transition-colors duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pending disabled:opacity-40 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center font-ui font-medium rounded-sm transition-colors duration-100 focus-visible:outline disabled:opacity-40 disabled:cursor-not-allowed";
 
-  const variants: Record<ButtonVariant, Record<"dark" | "parchment", string>> =
-    {
-      primary: {
-        dark: "bg-text text-ink hover:bg-parchment-dim",
-        parchment: "bg-ink-on-parchment text-parchment hover:bg-ink",
-      },
-      secondary: {
-        dark: "border border-text-dim text-text hover:border-text hover:text-text bg-transparent",
-        parchment:
-          "border border-ink-on-parchment text-ink-on-parchment hover:bg-parchment-dim bg-transparent",
-      },
-    };
+  const sizes = {
+    sm: "px-3 py-1.5 text-[12px]",
+    md: "px-4 py-2 text-[13px]",
+  };
+
+  const variants: Record<Variant, string> = {
+    primary:
+      "bg-text text-bg hover:bg-text/90 active:bg-text/80",
+    secondary:
+      "border border-border text-text-muted hover:text-text hover:border-text/30 bg-transparent",
+    ghost:
+      "text-text-muted hover:text-text bg-transparent",
+  };
 
   return (
     <button
-      className={`${base} ${variants[variant][surface]} ${className}`}
+      className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
       {...props}
     >
       {label}

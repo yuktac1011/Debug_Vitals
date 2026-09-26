@@ -62,7 +62,7 @@ export function RegressionGuardPanel({
         <Button
           label="Generate test for this failure"
           variant="primary"
-          surface="dark"
+
           onClick={onGenerate}
           disabled={!canGenerate || isActive}
           aria-busy={isActive}

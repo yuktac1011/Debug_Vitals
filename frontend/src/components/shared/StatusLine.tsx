@@ -1,38 +1,27 @@
 "use client";
 
-/**
- * DRD §3.6 — plain status line in mono ("Backend: responding, 42ms").
- * Never a colored dot alone.
- */
-interface StatusLineProps {
+export function StatusLine({
+  label,
+  ok,
+  warn,
+  detail,
+}: {
   label: string;
-  status: "responding" | "error" | "checking";
-  latencyMs?: number;
-}
-
-export function StatusLine({ label, status, latencyMs }: StatusLineProps) {
-  const statusText: Record<StatusLineProps["status"], string> = {
-    responding: "responding",
-    error: "unreachable",
-    checking: "checking…",
-  };
-
+  ok?: boolean;
+  warn?: boolean;
+  detail?: string;
+}) {
   return (
-    <span className="font-mono text-[12px] text-text-dim">
-      {label}:{" "}
+    <span className="font-mono text-[11px] text-text-dim flex items-center gap-1.5">
+      {label}
+      {": "}
       <span
         className={
-          status === "responding"
-            ? "text-confirmed"
-            : status === "error"
-              ? "text-divergent"
-              : "text-pending"
+          ok ? "text-success" : warn ? "text-warning" : "text-failure"
         }
       >
-        {statusText[status]}
-        {status === "responding" && latencyMs != null
-          ? `, ${latencyMs}ms`
-          : ""}
+        {ok ? "responding" : warn ? "checking" : "unreachable"}
+        {ok && detail ? `, ${detail}` : ""}
       </span>
     </span>
   );

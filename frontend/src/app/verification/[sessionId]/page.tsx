@@ -146,7 +146,6 @@ function VerificationInner({ sessionId, initialTab }: VerificationInnerProps) {
             <Button
               label="Run verification"
               variant="primary"
-              surface="dark"
               onClick={handleRunVerification}
             />
           )}

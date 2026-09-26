@@ -122,14 +122,12 @@ export function ReportCard({
         <Button
           label="Run verification"
           variant="primary"
-          surface="parchment"
           onClick={onRunVerification}
         />
         {report.isConfirmed && (
           <Button
             label="Generate regression test"
             variant="secondary"
-            surface="parchment"
             onClick={onGenerateRegressionTest}
           />
         )}
