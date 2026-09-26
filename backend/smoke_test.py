@@ -1,7 +1,7 @@
 """Quick smoke test — runs against the live server at localhost:8000."""
-import urllib.request, json, sys
+import urllib.request, json, sys, uuid
 
-SID = "cccccccc-0000-0000-0000-000000000099"
+SID = str(uuid.uuid4())   # fresh session every run — no dedup collisions
 BASE = "http://localhost:8000"
 
 def post(url, body):

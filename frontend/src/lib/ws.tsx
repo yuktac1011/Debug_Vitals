@@ -25,6 +25,21 @@ const WsContext = createContext<WsContextValue>({
 })
 
 export function WsProvider({ sessionId, children }: { sessionId: string; children: React.ReactNode }) {
+  const isDemo = sessionId.startsWith("demo-")
+
+  // Demo sessions never connect to a WebSocket — skip entirely
+  if (isDemo) {
+    return (
+      <WsContext.Provider value={{ status: "disconnected", lastMessage: null, latencyMs: null, send: () => {} }}>
+        {children}
+      </WsContext.Provider>
+    )
+  }
+
+  return <LiveWsProvider sessionId={sessionId}>{children}</LiveWsProvider>
+}
+
+function LiveWsProvider({ sessionId, children }: { sessionId: string; children: React.ReactNode }) {
   const [status, setStatus]           = useState<WsStatus>("connecting")
   const [lastMessage, setLastMessage] = useState<WsMessage | null>(null)
   const [latencyMs, setLatencyMs]     = useState<number | null>(null)
@@ -34,7 +49,9 @@ export function WsProvider({ sessionId, children }: { sessionId: string; childre
 
   const connect = useCallback(() => {
     if (typeof window === "undefined") return
-    const wsUrl = `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/ws/session/${sessionId}`
+    const backendHost = (process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8001")
+      .replace(/^https?:\/\//, "")
+    const wsUrl = `${window.location.protocol === "https:" ? "wss" : "ws"}://${backendHost}/ws/session/${sessionId}`
     const ws = new WebSocket(wsUrl)
     wsRef.current = ws
 

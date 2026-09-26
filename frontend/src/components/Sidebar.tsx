@@ -15,8 +15,9 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ sessionId }: SidebarProps) {
-  const pathname = usePathname()
+  const pathname  = usePathname()
   const { status } = useWs()
+  const isDemo    = sessionId.startsWith("demo-")
 
   const base = `/session/${sessionId}`
   const nav: NavItem[] = [
@@ -82,18 +83,30 @@ export default function Sidebar({ sessionId }: SidebarProps) {
         }}>
           {sessionId.slice(0, 8)}&hellip;
         </div>
-        {/* WS status */}
+        {/* WS status / mode badge */}
         <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 6 }}>
-          <span style={{
-            width: 6, height: 6,
-            borderRadius: "50%",
-            background: status === "connected" ? "#2BAB60" : status === "connecting" ? "#EC9C13" : "#9AABAB",
-            display: "inline-block",
-            flexShrink: 0,
-          }} />
-          <span style={{ fontSize: 10, color: "#9AABAB", fontFamily: "var(--font-mono-jb), monospace" }}>
-            {status}
-          </span>
+          {isDemo ? (
+            <>
+              <span style={{
+                width: 6, height: 6, borderRadius: "50%",
+                background: "#34C1C1", display: "inline-block", flexShrink: 0,
+              }} />
+              <span style={{ fontSize: 10, color: "#34C1C1", fontFamily: "var(--font-mono-jb), monospace" }}>
+                demo mode
+              </span>
+            </>
+          ) : (
+            <>
+              <span style={{
+                width: 6, height: 6, borderRadius: "50%",
+                background: status === "connected" ? "#2BAB60" : status === "connecting" ? "#EC9C13" : "#9AABAB",
+                display: "inline-block", flexShrink: 0,
+              }} />
+              <span style={{ fontSize: 10, color: "#9AABAB", fontFamily: "var(--font-mono-jb), monospace" }}>
+                {status}
+              </span>
+            </>
+          )}
         </div>
       </div>
 

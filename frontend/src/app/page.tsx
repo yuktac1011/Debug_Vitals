@@ -13,16 +13,17 @@ export default function LandingPage() {
   const scenarios = Object.values(DEMO_SCENARIOS)
 
   return (
-    <div style={{ minHeight: "100dvh", background: "#F9FBFB" }}>
+    <div style={{ minHeight: "100dvh", background: "var(--color-bg)" }}>
       {/* Header */}
       <header style={{
-        borderBottom: "1px solid #D8E4E4",
-        background: "#fff",
+        background: "var(--color-surface)",
+        boxShadow: "var(--shadow-neo-sm)",
         padding: "0 48px",
-        height: 56,
+        height: 64,
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
+        marginBottom: 32,
       }}>
         <div>
           <span style={{ fontSize: 16, fontWeight: 700, color: "#1C2222", letterSpacing: "-0.3px" }}>
@@ -42,7 +43,7 @@ export default function LandingPage() {
         </a>
       </header>
 
-      <main style={{ maxWidth: 860, margin: "0 auto", padding: "64px 32px" }}>
+      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px" }}>
         {/* Hero */}
         <div style={{ marginBottom: 64 }}>
           <div style={{
@@ -79,9 +80,9 @@ export default function LandingPage() {
             flexWrap: "wrap",
             gap: 4,
             padding: "16px 20px",
-            background: "#fff",
-            border: "1px solid #D8E4E4",
-            borderRadius: 8,
+            background: "var(--color-surface)",
+            boxShadow: "var(--shadow-neo-inset)",
+            borderRadius: "var(--radius)",
             marginBottom: 40,
           }}>
             {[
@@ -118,7 +119,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {scenarios.map((s, i) => (
               <Link
                 key={s.id}
@@ -128,14 +129,14 @@ export default function LandingPage() {
                   alignItems: "flex-start",
                   gap: 20,
                   padding: "20px 24px",
-                  background: "#fff",
-                  border: "1px solid #D8E4E4",
-                  borderRadius: i === 0 ? "8px 8px 0 0" : i === scenarios.length - 1 ? "0 0 8px 8px" : 0,
+                  background: "var(--color-surface)",
+                  boxShadow: "var(--shadow-neo)",
+                  borderRadius: "var(--radius)",
                   textDecoration: "none",
-                  transition: "background 0.12s",
+                  transition: "all 0.2s ease",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#F9FBFB")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
+                onMouseEnter={(e) => (e.currentTarget.style.boxShadow = "var(--shadow-neo-inset)")}
+                onMouseLeave={(e) => (e.currentTarget.style.boxShadow = "var(--shadow-neo)")}
               >
                 <div style={{
                   marginTop: 3,
@@ -182,7 +183,10 @@ export default function LandingPage() {
             ].map((step, i) => (
               <div key={step.n} style={{
                 padding: "16px 20px",
-                borderRight: i < 4 ? "1px solid #D8E4E4" : "none",
+                background: "var(--color-surface)",
+                boxShadow: "var(--shadow-neo-sm)",
+                borderRadius: "var(--radius-sm)",
+                margin: 8,
               }}>
                 <div style={{
                   fontFamily: "var(--font-mono-jb), monospace",
