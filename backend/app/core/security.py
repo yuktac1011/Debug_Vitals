@@ -24,7 +24,7 @@ def get_cors_config() -> Dict[str, Any]:
     """
     settings = get_settings()
     return {
-        "allow_origins": settings.allowed_origins,
+        "allow_origins": settings.allowed_origins_list,
         "allow_credentials": True,
         "allow_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Authorization", "Content-Type", "X-Request-ID"],

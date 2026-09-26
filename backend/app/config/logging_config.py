@@ -15,6 +15,10 @@ from typing import Any
 
 import structlog
 
+# Module-level structlog logger — always uses the structlog pipeline,
+# never the raw stdlib Logger that doesn't accept keyword extras.
+_log = structlog.get_logger(__name__)
+
 
 def configure_logging(log_level: str = "INFO", environment: str = "development") -> None:
     """
@@ -75,7 +79,7 @@ def configure_logging(log_level: str = "INFO", environment: str = "development")
         logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
         logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
-    logging.getLogger(__name__).info(
+    _log.info(
         "Logging configured",
         environment=environment,
         log_level=log_level,

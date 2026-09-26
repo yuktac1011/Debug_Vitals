@@ -52,7 +52,7 @@ class NotFoundError(AppException):
 
 
 class ValidationError(AppException):
-    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+    status_code = status.HTTP_422_UNPROCESSABLE_CONTENT
     code = "validation_error"
 
 
@@ -78,7 +78,7 @@ class AuthorizationError(AppException):
 
 
 class PayloadTooLargeError(AppException):
-    status_code = status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
+    status_code = status.HTTP_413_CONTENT_TOO_LARGE
     code = "payload_too_large"
 
 
@@ -150,7 +150,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         )
         # Pydantic errors are safe to surface — they contain no internal state
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             content={
                 "error": {
                     "code": "validation_error",
