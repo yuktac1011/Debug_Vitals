@@ -95,6 +95,8 @@ class ActivityMonitor {
       source,
       status: metadata.status || 'success',
       decision: decision.decision,
+      decisionId: decision.id,
+      enforcement: source === 'fs.watch' ? 'observe_only' : 'enforced',
       metadata,
       riskSignals
     };

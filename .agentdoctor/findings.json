@@ -1,0 +1,17 @@
+[
+  {
+    "id": "finding_01a3d4ed44a2a993",
+    "title": "Missing author in package.json",
+    "severity": "low",
+    "category": "configuration",
+    "confidence": 0.95,
+    "file": "package.json",
+    "line": null,
+    "description": "The package.json file should have an author field.",
+    "evidence": "The provided package.json does not contain an 'author' field.",
+    "recommendation": "Add an 'author' field.",
+    "status": "resolved",
+    "firstSeen": 1790461807594,
+    "lastSeen": 1790461822917
+  }
+]

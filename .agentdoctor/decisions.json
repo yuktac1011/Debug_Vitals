@@ -1,0 +1,112 @@
+[
+  {
+    "id": "e02004fe0ae2d412",
+    "action": "COMMAND_EXECUTED",
+    "resource": "rm -rf node_modules",
+    "decision": "REQUIRE_APPROVAL",
+    "policyId": "pol_4",
+    "policyName": "Destructive Commands",
+    "reason": "Matched policy: Destructive Commands which enforces REQUIRE_APPROVAL",
+    "status": "PENDING",
+    "timestamp": "2026-09-27T06:41:52.790Z"
+  },
+  {
+    "id": "113f3e46e039dceb",
+    "action": "FILE_WRITE",
+    "resource": "src/config/database.js",
+    "decision": "ALLOW",
+    "policyId": "pol_7",
+    "policyName": "Normal Source Edits",
+    "reason": "Matched policy: Normal Source Edits which enforces ALLOW",
+    "status": "RESOLVED",
+    "timestamp": "2026-09-27T06:41:52.793Z"
+  },
+  {
+    "id": "9c012986a63964c2",
+    "action": "FILE_WRITE",
+    "resource": ".env",
+    "decision": "REQUIRE_APPROVAL",
+    "policyId": "pol_1",
+    "policyName": "Protect Secrets",
+    "reason": "Matched policy: Protect Secrets which enforces REQUIRE_APPROVAL",
+    "status": "APPROVED",
+    "timestamp": "2026-09-27T06:41:52.794Z"
+  },
+  {
+    "id": "829cff64cd15ffd9",
+    "action": "COMMAND_EXECUTED",
+    "resource": "npm run build",
+    "decision": "ALLOW",
+    "policyId": "pol_9",
+    "policyName": "Normal Build",
+    "reason": "Matched policy: Normal Build which enforces ALLOW",
+    "status": "RESOLVED",
+    "timestamp": "2026-09-27T07:19:22.074Z"
+  },
+  {
+    "id": "d23267f40b2d6efe",
+    "action": "FILE_WRITE",
+    "resource": "src/config.json",
+    "decision": "ALLOW",
+    "policyId": "pol_7",
+    "policyName": "Normal Source Edits",
+    "reason": "Matched policy: Normal Source Edits which enforces ALLOW",
+    "status": "RESOLVED",
+    "timestamp": "2026-09-27T07:19:22.081Z"
+  },
+  {
+    "id": "931caf7819d6b653",
+    "action": "FILE_WRITE",
+    "resource": ".env",
+    "decision": "REQUIRE_APPROVAL",
+    "policyId": "pol_1",
+    "policyName": "Protect Secrets",
+    "reason": "Matched policy: Protect Secrets which enforces REQUIRE_APPROVAL",
+    "status": "PENDING",
+    "timestamp": "2026-09-27T07:19:22.094Z"
+  },
+  {
+    "id": "c2969ba2455feb46",
+    "action": "COMMAND_EXECUTED",
+    "resource": "rm -rf",
+    "decision": "REQUIRE_APPROVAL",
+    "policyId": "pol_4",
+    "policyName": "Destructive Commands",
+    "reason": "Matched policy: Destructive Commands which enforces REQUIRE_APPROVAL",
+    "status": "REJECTED",
+    "timestamp": "2026-09-27T07:19:24.133Z"
+  },
+  {
+    "id": "38e2d585a8801f17",
+    "action": "FILE_WRITE",
+    "resource": "src/test.js",
+    "decision": "ALLOW",
+    "policyId": "pol_7",
+    "policyName": "Normal Source Edits",
+    "reason": "Matched policy: Normal Source Edits which enforces ALLOW",
+    "status": "RESOLVED",
+    "timestamp": "2026-09-27T07:26:18.247Z"
+  },
+  {
+    "id": "9268b0d363cc9093",
+    "action": "FILE_WRITE",
+    "resource": "src/test.js",
+    "decision": "ALLOW",
+    "policyId": "pol_7",
+    "policyName": "Normal Source Edits",
+    "reason": "Matched policy: Normal Source Edits which enforces ALLOW",
+    "status": "RESOLVED",
+    "timestamp": "2026-09-27T07:26:37.741Z"
+  },
+  {
+    "id": "eadde46529f72c00",
+    "action": "FILE_WRITE",
+    "resource": "src/test.js",
+    "decision": "ALLOW",
+    "policyId": "pol_7",
+    "policyName": "Normal Source Edits",
+    "reason": "Matched policy: Normal Source Edits which enforces ALLOW",
+    "status": "RESOLVED",
+    "timestamp": "2026-09-27T07:36:53.671Z"
+  }
+]

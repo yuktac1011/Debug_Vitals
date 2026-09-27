@@ -1,0 +1,74 @@
+[
+  {
+    "id": "pol_1",
+    "name": "Protect Secrets",
+    "action": "ANY",
+    "resource": ".env",
+    "effect": "REQUIRE_APPROVAL",
+    "enabled": true
+  },
+  {
+    "id": "pol_2",
+    "name": "Protect Credentials",
+    "action": "ANY",
+    "resource": "credentials",
+    "effect": "REQUIRE_APPROVAL",
+    "enabled": true
+  },
+  {
+    "id": "pol_3",
+    "name": "Protect Keys",
+    "action": "ANY",
+    "resource": "id_rsa",
+    "effect": "REQUIRE_APPROVAL",
+    "enabled": true
+  },
+  {
+    "id": "pol_4",
+    "name": "Destructive Commands",
+    "action": "COMMAND_EXECUTED",
+    "resource": "rm -rf",
+    "effect": "REQUIRE_APPROVAL",
+    "enabled": true
+  },
+  {
+    "id": "pol_5",
+    "name": "Database Writes",
+    "action": "DATABASE_WRITE",
+    "resource": "*",
+    "effect": "REQUIRE_APPROVAL",
+    "enabled": true
+  },
+  {
+    "id": "pol_6",
+    "name": "Cloud Actions",
+    "action": "CLOUD_ACTION",
+    "resource": "*",
+    "effect": "REQUIRE_APPROVAL",
+    "enabled": true
+  },
+  {
+    "id": "pol_7",
+    "name": "Normal Source Edits",
+    "action": "FILE_WRITE",
+    "resource": "src/",
+    "effect": "ALLOW",
+    "enabled": true
+  },
+  {
+    "id": "pol_8",
+    "name": "Normal Tests",
+    "action": "COMMAND_EXECUTED",
+    "resource": "npm test",
+    "effect": "ALLOW",
+    "enabled": true
+  },
+  {
+    "id": "pol_9",
+    "name": "Normal Build",
+    "action": "COMMAND_EXECUTED",
+    "resource": "npm run build",
+    "effect": "ALLOW",
+    "enabled": true
+  }
+]
