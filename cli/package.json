@@ -1,12 +1,25 @@
 {
-  "name": "agentdoctor",
-  "version": "0.1.0",
-  "description": "",
+  "name": "debugvitals",
+  "version": "0.1.1",
+  "description": "Evidence-driven debugging and trust monitoring for AI-assisted software development.",
   "main": "index.js",
+  "readme": "README.md",
+  "files": [
+    "src/",
+    "index.js",
+    "README.md"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "debugvitals",
+    "ai-agent",
+    "debugging",
+    "monitoring",
+    "ci",
+    "devtools"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
