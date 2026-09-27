@@ -41,7 +41,7 @@ export default function LandingPage() {
           </div>
           <div>
             <span style={{ fontSize: 18, fontWeight: 800, color: "#1C2222", letterSpacing: "-0.4px" }}>
-              Agent<span style={{ color: "#34C1C1" }}>Doctor</span>
+              Debug<span style={{ color: "#34C1C1" }}> Vitals</span>
             </span>
             <span style={{ marginLeft: 12, fontSize: 11, color: "#718484", fontFamily: "var(--font-mono)", background: "rgba(52,193,193,0.1)", padding: "2px 8px", borderRadius: 4, border: "1px solid rgba(52,193,193,0.25)" }}>
               v0.1 Live System
