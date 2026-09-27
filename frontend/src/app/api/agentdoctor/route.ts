@@ -34,10 +34,13 @@ export async function GET() {
       ignored: 0
     };
 
-    for (const f of findings) {
+    for (const f of findings as any[]) {
       if (f.status === 'new' || f.status === 'open') {
         riskSummary.open++;
-        riskSummary[f.severity] = (riskSummary[f.severity] || 0) + 1;
+        const severity = f.severity as keyof typeof riskSummary;
+        if (severity in riskSummary && typeof riskSummary[severity] === 'number') {
+          riskSummary[severity] = (riskSummary[severity] as number) + 1;
+        }
       } else if (f.status === 'resolved') {
         riskSummary.resolved++;
       } else if (f.status === 'ignored') {
@@ -46,12 +49,12 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      environment: config.environment || {},
-      sessionId: config.sessionId,
+      environment: (config as any).environment || {},
+      sessionId: (config as any).sessionId,
       findings,
       riskSummary
     });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }
