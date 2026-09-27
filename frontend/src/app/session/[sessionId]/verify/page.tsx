@@ -295,7 +295,7 @@ export default function VerifyPage({ params }: { params: Promise<{ sessionId: st
       <div className="info-callout" style={{ marginBottom: 28 }}>
         <div className="info-callout-icon">i</div>
         <div>
-          <strong>What is Verification?</strong> Before committing changes to your repository, AgentDoctor spins up an isolated sandbox container to test your fix hypothesis and prove whether the failure is resolved.
+          <strong>What is Verification?</strong> Before committing changes to your repository, Debug Vitals spins up an isolated sandbox container to test your fix hypothesis and prove whether the failure is resolved.
         </div>
       </div>
 

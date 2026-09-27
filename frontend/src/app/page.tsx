@@ -93,7 +93,7 @@ export default function LandingPage() {
             maxWidth: 680,
             margin: "0 auto 36px",
           }}>
-            AI agents make file changes, upgrade packages, and run terminal commands autonomously. When tests fail, <strong>AgentDoctor traces the entire causal story</strong> and pinpoints the exact culprit in plain English.
+            AI agents make file changes, upgrade packages, and run terminal commands autonomously. When tests fail, <strong>Debug Vitals traces the entire causal story</strong> and pinpoints the exact culprit in plain English.
           </p>
 
           {/* User-friendly Visual Causal Flow */}
@@ -152,7 +152,7 @@ export default function LandingPage() {
                 Explore Live Demo Investigations
               </h2>
               <p style={{ fontSize: 14, color: "#718484" }}>
-                Select a scenario below to see how AgentDoctor diagnoses complex multi-step failures instantly.
+                Select a scenario below to see how Debug Vitals diagnoses complex multi-step failures instantly.
               </p>
             </div>
             <span style={{ fontSize: 12, fontWeight: 600, color: "#34C1C1", background: "rgba(52,193,193,0.1)", padding: "4px 12px", borderRadius: 12 }}>
@@ -237,7 +237,7 @@ export default function LandingPage() {
               Simple 5-Step Guided Workflow
             </h2>
             <p style={{ fontSize: 13, color: "#718484" }}>
-              How AgentDoctor guides developers from initial failure detection to automated fix verification.
+              How Debug Vitals guides developers from initial failure detection to automated fix verification.
             </p>
           </div>
 
