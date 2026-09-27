@@ -1,67 +1,40 @@
-# AgentDoctor — System Architecture
+# AgentDoctor Architecture
 
-## Overview
-AgentDoctor is organized into four tiers, each handling one stage of the diagnostic pipeline:
+## 1. Problem
+Developers often treat the symptom rather than the cause when fixing CI failures or bugs. Current tools are either too noisy (basic filesystem watchers) or too slow/expensive (sending the entire repo to an LLM on every save).
 
-1. **Observation Tier** — captures raw signals (agent actions, Git changes, environment, dependencies, CI/test results).
-2. **Correlation Tier** — links observed events into a causal graph/timeline.
-3. **Diagnosis Tier** — ranks likely root causes by evidence and generates a human-readable explanation.
-4. **Interface Tier** — surfaces the timeline, diagnosis, verification, and regression-guard actions to the developer.
+## 2. Architecture
+AgentDoctor is a lightweight, local-first agentic analysis tool that sits silently in the developer's environment, bridging local file changes with intelligent diagnostic reasoning. It strictly separates filesystem tracking from AI reasoning to ensure speed, low cost, and zero hallucinations.
 
-## Tier Breakdown
+## 3. Data Flow
+1. **File Change**: Developer saves a file.
+2. **Watch Event**: `fs.watch` detects changes with a 500ms debounce.
+3. **Change Intelligence**: Filters out noise (`node_modules`, `.git`, `.env`) and classifies remaining files.
+4. **Context Builder**: Finds related files (e.g., tests) and strictly bounds the text to a 12,000 token limit.
+5. **AI Analysis**: Requests an intelligent, structured diagnosis of the bounded context.
+6. **Finding Engine**: Deduplicates, merges, and tracks the lifecycle (New → Open → Resolved) of discovered issues.
+7. **Dashboard**: A Developer UI surfaces the risk summaries and detailed findings in real-time.
 
-### 1. Observation Tier
-- **Agent Activity Capture** — hooks/wrapper around agent tool-calls (file edits, installs, commands executed).
-- **Git Change Watcher** — parses diffs, commit metadata.
-- **Environment & Dependency Scanner** — reads runtime version, package manifests, env vars, connected services.
-- **CI/Test Result Listener** — ingests CI run results and test outcomes (GitHub Actions API or equivalent).
+## 4. Environment Detection
+Runs once at startup (`agentdoctor init`), safely scraping OS, Node/Python/Java versions, and package managers without touching secrets.
 
-### 2. Correlation Tier
-- **Timeline Builder** — orders all captured events chronologically per project/session.
-- **Correlation Engine** — graph-based linking (NetworkX) connecting change → environment → dependency → test → failure, rather than treating each event as isolated.
+## 5. Change Intelligence
+A filtering layer that aggressively drops temporary files, build outputs, and caches, saving thousands of API requests per session.
 
-### 3. Diagnosis Tier
-- **Root Cause Ranker** — rule-based scoring across candidate causes (dependency mismatch, environment mismatch, test instability, etc.), weighted by evidence strength.
-- **Reasoning Engine** — LLM-assisted explanation generation, converting the ranked evidence into a plain-language diagnosis.
-- **Failure Verification Runner** — spins up an isolated container (Docker) to test a hypothesis directly (e.g. rerun under a different Node version) and updates confidence based on the result.
-- **Regression Guard** — generates and runs one targeted test reproducing the confirmed failure.
+## 6. Context Optimization
+Employs smart truncation and related-file discovery to provide the AI only what it needs, keeping payloads consistently under the token budget.
 
-### 4. Interface Tier
-- **Diagnosis Dashboard** — root cause, evidence, confidence, affected components, next steps.
-- **Agent Timeline View** — chronological event view with the implicated event(s) highlighted.
-- **Dependency & Environment Map View** — visual graph of the current vs. expected state.
-- **Real-Time Push** — WebSocket updates as diagnosis/verification progress, no polling.
+## 7. AI Analysis
+A generic Provider interface that safely captures JSON output, validates strict enums (Severity, Category), and enforces an Evidence requirement for all findings.
 
-## Data Flow (happy path)
-```
-Agent action / code change
-        ↓
-Observation Tier captures event
-        ↓
-Correlation Tier links it into the running timeline/graph
-        ↓
-Failure detected (CI/test)
-        ↓
-Diagnosis Tier ranks causes + generates explanation
-        ↓
-Interface Tier renders diagnosis report
-        ↓
-(optional) Failure Verification reruns hypothesis in isolated container
-        ↓
-(optional) Regression Guard generates + runs targeted test
-```
+## 8. Finding Engine
+Uses SHA-256 fingerprinting to stabilize finding IDs across sessions. It tracks when an issue was `firstSeen` and naturally ages it to `resolved` if subsequent analyses of the same files no longer detect the problem.
 
-## Deployment
-- **Frontend:** Vercel
-- **Backend:** Render (FastAPI + Redis + PostgreSQL)
-- **Verification containers:** Docker, spun up on-demand by the backend for isolated reruns
-- **CORS:** locked to the deployed frontend domain only, not wildcarded
-- **Reliability for live demo/deploy-link judging:**
-  - `/health` endpoint for uptime confirmation
-  - Keep-warm ping (e.g. every 5 min) to avoid free-tier cold starts during judging windows
-  - Frontend shows an explicit "reconnecting" state rather than a blank screen on backend hiccup
+## 9. Dashboard
+A clean Next.js React interface serving as the primary developer hub. It reads locally persisted states (`.agentdoctor/findings.json`) via lightweight API routes.
 
-## Explicit Non-Goals in Architecture
-- No multi-tenant auth layer in MVP
-- No trained ML model for correlation in MVP (rule-based + LLM reasoning only)
-- No mobile client (see PROJECT_CONTEXT.md platform decision)
+## 10. 429/Token Protection
+Requests are queued centrally. Max concurrency is set to 1. In-flight requests with identical context fingerprints are deduplicated. Max 2-attempt exponential backoff guarantees stability under provider strain.
+
+## 11. Failure Handling
+The CLI is fault-tolerant. Network timeouts, rate limits, and un-parseable LLM responses are caught and logged softly. The watcher *never* crashes, continuing to monitor the filesystem until the provider recovers.

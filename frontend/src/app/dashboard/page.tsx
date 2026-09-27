@@ -12,6 +12,7 @@ const SEVERITY_COLORS: Record<string, string> = {
 
 export default function Dashboard() {
   const [data, setData] = useState<any>(null)
+  const [ciRuns, setCiRuns] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -19,13 +20,20 @@ export default function Dashboard() {
   const [filterStatus, setFilterStatus] = useState('open')
   
   const [selectedFindingId, setSelectedFindingId] = useState<string | null>(null)
+  const [selectedCiRunId, setSelectedCiRunId] = useState<string | null>(null)
 
   const fetchData = async () => {
     try {
-      const res = await fetch('/api/agentdoctor')
+      const [res, ciRes] = await Promise.all([
+        fetch('/api/agentdoctor'),
+        fetch('/api/ci')
+      ])
       if (!res.ok) throw new Error('Failed to load data')
       const json = await res.json()
       setData(json)
+      if (ciRes.ok) {
+        setCiRuns(await ciRes.json())
+      }
       setError(null)
     } catch (err: any) {
       setError(err.message)
@@ -77,6 +85,7 @@ export default function Dashboard() {
   })
 
   const selectedFinding = findings.find((f: any) => f.id === selectedFindingId)
+  const selectedCiRun = ciRuns.find((r: any) => r.id === selectedCiRunId)
 
   return (
     <div style={{ minHeight: "100dvh", background: "var(--color-bg)", fontFamily: "sans-serif" }}>
@@ -188,6 +197,52 @@ export default function Dashboard() {
                 </tbody>
               </table>
             )}
+          {/* CI Runs */}
+          <div style={{ marginTop: 32 }}>
+            <h2 style={{ fontSize: 16, color: "#1C2222", marginBottom: 16 }}>CI Activity</h2>
+            <div style={{ background: "var(--color-surface)", borderRadius: 8, border: "1px solid #D8E4E4", overflow: 'hidden' }}>
+              {ciRuns.length === 0 ? (
+                <div style={{ padding: 32, textAlign: 'center', color: "#718484" }}>
+                  No CI runs ingested yet.
+                </div>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: "#F5F8F8", borderBottom: "1px solid #D8E4E4", textAlign: 'left' }}>
+                      <th style={{ padding: "12px 16px", fontSize: 13, color: "#718484", fontWeight: 500 }}>Workflow</th>
+                      <th style={{ padding: "12px 16px", fontSize: 13, color: "#718484", fontWeight: 500 }}>Commit</th>
+                      <th style={{ padding: "12px 16px", fontSize: 13, color: "#718484", fontWeight: 500 }}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ciRuns.map((r: any) => (
+                      <tr 
+                        key={r.id} 
+                        onClick={() => { setSelectedCiRunId(r.id); setSelectedFindingId(null); }}
+                        style={{ 
+                          borderBottom: "1px solid #D8E4E4", 
+                          cursor: 'pointer',
+                          background: selectedCiRunId === r.id ? "#F0F5F5" : "transparent"
+                        }}
+                      >
+                        <td style={{ padding: "12px 16px", fontSize: 14, fontWeight: 500 }}>{r.workflow}</td>
+                        <td style={{ padding: "12px 16px", fontSize: 13, color: "#718484", fontFamily: 'monospace' }}>{r.commitSha?.substring(0, 7)}</td>
+                        <td style={{ padding: "12px 16px" }}>
+                          <span style={{ 
+                            display: 'inline-block', padding: "2px 8px", borderRadius: 4, 
+                            fontSize: 12, fontWeight: 600, 
+                            color: r.conclusion === 'failure' ? "#DB2424" : "#34C1C1",
+                            background: r.conclusion === 'failure' ? "#DB242415" : "#34C1C115"
+                          }}>
+                            {r.conclusion?.toUpperCase() || r.status?.toUpperCase()}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         </div>
 
@@ -253,9 +308,43 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
+          ) : selectedCiRun ? (
+            <div style={{ background: "var(--color-surface)", borderRadius: 8, border: "1px solid #D8E4E4", padding: 24, position: 'sticky', top: 32 }}>
+              <h2 style={{ fontSize: 20, margin: "0 0 16px 0", color: "#1C2222" }}>{selectedCiRun.workflow}</h2>
+              <div style={{ fontSize: 13, color: "#718484", marginBottom: 24 }}>
+                <strong>Commit:</strong> <span style={{ fontFamily: 'monospace' }}>{selectedCiRun.commitSha}</span><br />
+                <strong>Branch:</strong> {selectedCiRun.branch}<br />
+                <strong>Started:</strong> {new Date(selectedCiRun.startedAt).toLocaleString()}
+              </div>
+
+              {selectedCiRun.jobs?.map((job: any) => (
+                <div key={job.id} style={{ marginBottom: 24 }}>
+                  <h3 style={{ fontSize: 14, fontWeight: 600, color: "#1C2222", marginBottom: 12 }}>
+                    Job: {job.name}
+                    <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 'normal', color: job.conclusion === 'failure' ? "#DB2424" : "#34C1C1" }}>
+                      ({job.conclusion || job.status})
+                    </span>
+                  </h3>
+                  
+                  {job.steps?.map((step: any, i: number) => step.failure && (
+                    <div key={i} style={{ marginBottom: 16 }}>
+                      <h4 style={{ fontSize: 13, color: "#DB2424", marginBottom: 4 }}>Failed Step: {step.name}</h4>
+                      <div style={{ fontSize: 13, padding: 12, background: "#FDF2F2", borderLeft: "3px solid #DB2424", borderRadius: "0 4px 4px 0", fontFamily: 'monospace', whiteSpace: 'pre-wrap', overflowX: 'auto' }}>
+                        {step.failure.message}
+                        {step.failure.logExcerpt && (
+                          <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #F5C344" }}>
+                            {step.failure.logExcerpt}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           ) : (
             <div style={{ background: "var(--color-surface)", borderRadius: 8, border: "1px solid #D8E4E4", padding: 48, textAlign: 'center', color: "#9AABAB" }}>
-              Select a finding to view details
+              Select a finding or CI run to view details
             </div>
           )}
         </div>

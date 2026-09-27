@@ -13,6 +13,7 @@ function showHelp() {
   console.log('Commands:');
   console.log('  init       Initialize AgentDoctor in the current repository');
   console.log('  watch      Monitor the repository for meaningful events');
+  console.log('  ci         Ingest CI runs and failures');
   console.log('\nOptions:');
   console.log('  --help     Show this help message');
   console.log('  --version  Show version number');
@@ -26,6 +27,8 @@ function showWatchHelp() {
 function showVersion() {
   console.log(packageJson.version);
 }
+
+const ciCommand = require('./ci');
 
 function main() {
   if (args.length === 0) {
@@ -45,6 +48,9 @@ function main() {
       } else {
         watchCommand();
       }
+      break;
+    case 'ci':
+      ciCommand(args.slice(1));
       break;
     case '--help':
     case '-h':
