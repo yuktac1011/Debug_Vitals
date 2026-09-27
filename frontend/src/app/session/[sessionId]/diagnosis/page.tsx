@@ -32,7 +32,7 @@ export default function DiagnosisPage({ params }: { params: Promise<{ sessionId:
       <div className="info-callout" style={{ marginBottom: 28 }}>
         <div className="info-callout-icon">i</div>
         <div>
-          <strong>What is Diagnosis?</strong> Rather than dumping raw error logs, AgentDoctor calculates the exact root cause behind your failure and explains it in plain English with supporting evidence.
+          <strong>What is Diagnosis?</strong> Rather than dumping raw error logs, Debug Vitals calculates the exact root cause behind your failure and explains it in plain English with supporting evidence.
         </div>
       </div>
 

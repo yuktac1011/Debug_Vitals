@@ -124,7 +124,7 @@ export default function Dashboard() {
       }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, color: "#1C2222", margin: 0 }}>
-            {environment.os ? "Project Dashboard" : "AgentDoctor"}
+            {environment.os ? "Project Dashboard" : "Debug Vitals"}
           </h1>
           <div style={{ fontSize: 13, color: "#718484", marginTop: 4, display: 'flex', gap: 12 }}>
             {environment.language && <span>Language: {environment.language}</span>}

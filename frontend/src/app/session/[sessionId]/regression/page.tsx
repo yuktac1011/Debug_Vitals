@@ -200,7 +200,7 @@ function TestCard({ test }: { test: RegressionTestItem }) {
 
   return (
     <div style={{ padding: "18px 20px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 8, boxShadow: "var(--shadow-neo-sm)" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyBetween: "space-between", gap: 12, marginBottom: test.test_code ? 12 : 0 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: test.test_code ? 12 : 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: statusColor, display: "inline-block", flexShrink: 0 }} />
           <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 700, color: "#1C2222", wordBreak: "break-all" }}>

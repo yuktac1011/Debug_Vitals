@@ -1,5 +1,5 @@
 /**
- * Typed API client for the AgentDoctor backend.
+ * Typed API client for the Debug Vitals backend.
  * Base URL: same origin (FastAPI serves both frontend static + API).
  * All paths match the backend routers exactly.
  */

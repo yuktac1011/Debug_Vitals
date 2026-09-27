@@ -71,7 +71,7 @@ export default function Sidebar({ sessionId }: SidebarProps) {
               color: "#1C2222",
               letterSpacing: "-0.4px",
             }}>
-              Agent<span style={{ color: "#34C1C1" }}>Doctor</span>
+              Debug<span style={{ color: "#34C1C1" }}> Vitals</span>
             </div>
           </div>
         </Link>

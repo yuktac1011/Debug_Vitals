@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "AgentDoctor — Diagnose the cause, not just the symptom.",
+  title: "Debug Vitals — Diagnose the cause, not just the symptom.",
   description:
     "Developer diagnostic tool for AI-assisted coding. Connects agent actions → code changes → environment → tests → CI failures.",
 }
