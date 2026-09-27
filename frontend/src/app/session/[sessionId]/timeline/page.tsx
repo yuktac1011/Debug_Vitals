@@ -25,18 +25,18 @@ const KIND_COLOR: Record<string, string> = {
 
 const KIND_LABEL: Record<string, string> = {
   AGENT:        "AGENT",
-  GIT:          "GIT",
-  ENV:          "ENV",
-  TEST:         "TEST",
-  CI:           "CI",
-  DEP:          "DEP",
-  agent_action: "AGENT",
-  git_diff:     "GIT",
-  env_snapshot: "ENV",
-  test_result:  "TEST",
-  ci_result:    "CI",
-  dependency:   "DEP",
-  custom:       "CUSTOM",
+  GIT:          "GIT DIFF",
+  ENV:          "ENV SHIFT",
+  TEST:         "TEST RUN",
+  CI:           "CI CD",
+  DEP:          "PACKAGE",
+  agent_action: "AGENT ACTION",
+  git_diff:     "GIT DIFF",
+  env_snapshot: "ENV SNAPSHOT",
+  test_result:  "TEST RESULT",
+  ci_result:    "CI OUTCOME",
+  dependency:   "PACKAGE DEP",
+  custom:       "SIGNAL",
 }
 
 const SEVERITY_COLOR: Record<string, string> = {
@@ -48,14 +48,14 @@ const SEVERITY_COLOR: Record<string, string> = {
 }
 
 const EVENT_TYPE_OPTIONS: { value: EventType | ""; label: string }[] = [
-  { value: "",             label: "All types" },
-  { value: "agent_action", label: "Agent action" },
-  { value: "git_diff",     label: "Git diff" },
-  { value: "env_snapshot", label: "Environment" },
-  { value: "test_result",  label: "Test result" },
-  { value: "ci_result",    label: "CI result" },
-  { value: "dependency",   label: "Dependency" },
-  { value: "custom",       label: "Custom" },
+  { value: "",             label: "All Event Types" },
+  { value: "agent_action", label: "AI Agent Actions" },
+  { value: "git_diff",     label: "Git Code Diffs" },
+  { value: "env_snapshot", label: "Environment Shifts" },
+  { value: "test_result",  label: "Test Executions" },
+  { value: "ci_result",    label: "CI/CD Outcomes" },
+  { value: "dependency",   label: "Package Updates" },
+  { value: "custom",       label: "Custom Signals" },
 ]
 
 // ── Demo row adapter ──────────────────────────────────────────────────────────
@@ -72,15 +72,17 @@ function DemoTimeline({ events }: { events: TimelineEvent[] }) {
       {/* Filter toggle */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
         <button
-          className="btn btn-sm"
-          style={{ background: !showAll ? "#1C2222" : "#fff", color: !showAll ? "#fff" : "#718484", border: `1px solid ${!showAll ? "#1C2222" : "#D8E4E4"}` }}
+          className={`btn btn-sm ${!showAll ? "btn-primary" : "btn-secondary"}`}
           onClick={() => setShowAll(false)}
-        >Relevant only ({relevant})</button>
+        >
+          Relevant to Failure ({relevant})
+        </button>
         <button
-          className="btn btn-sm"
-          style={{ background: showAll ? "#1C2222" : "#fff", color: showAll ? "#fff" : "#718484", border: `1px solid ${showAll ? "#1C2222" : "#D8E4E4"}` }}
+          className={`btn btn-sm ${showAll ? "btn-primary" : "btn-secondary"}`}
           onClick={() => setShowAll(true)}
-        >All events ({events.length})</button>
+        >
+          All System Events ({events.length})
+        </button>
         <Legend />
       </div>
 
@@ -133,9 +135,9 @@ function LiveTimeline({
           value={filterType}
           onChange={(e) => handleFilter(e.target.value as EventType | "")}
           style={{
-            fontSize: 12, padding: "5px 10px", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)",
-            borderRadius: 4, background: "var(--skeuo-bg)", color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)",
-            fontFamily: "var(--font-mono-jb), monospace",
+            fontSize: 13, padding: "6px 12px", border: "1px solid #c4c9cf",
+            borderRadius: 6, background: "#fff", color: "#1C2222",
+            fontFamily: "var(--font-mono)", fontWeight: 500, outline: "none",
           }}
         >
           {EVENT_TYPE_OPTIONS.map((o) => (
@@ -143,19 +145,18 @@ function LiveTimeline({
           ))}
         </select>
         <button
-          className="btn btn-sm"
+          className="btn btn-sm btn-secondary"
           onClick={() => onRefetch(filterType || undefined)}
           disabled={loading}
-          style={{ opacity: loading ? 0.5 : 1 }}
         >
-          {loading ? "Loading…" : "Refresh"}
+          {loading ? "Refreshing Log…" : "Refresh Timeline"}
         </button>
         <Legend />
       </div>
 
       {events.length === 0 && !loading && (
-        <div style={{ padding: "32px 0", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", fontSize: 13, textAlign: "center" }}>
-          No events found. Ingest events via <code style={{ fontFamily: "var(--font-mono-jb), monospace" }}>POST /api/v1/events</code> to populate the timeline.
+        <div style={{ padding: "40px 20px", color: "#718484", fontSize: 13, textAlign: "center" }} className="glass-card">
+          No events recorded for this filter. Send signals via <code>POST /api/v1/events</code>.
         </div>
       )}
 
@@ -190,9 +191,9 @@ function Legend() {
   return (
     <div style={{ marginLeft: "auto", display: "flex", gap: 14, flexWrap: "wrap" }}>
       {(["AGENT","GIT","ENV","TEST","CI","DEP"] as const).map((k) => (
-        <span key={k} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10 }}>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: KIND_COLOR[k], display: "inline-block" }} className="skeuo-panel" />
-          <span style={{ fontFamily: "var(--font-mono-jb), monospace", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)" }}>{k}</span>
+        <span key={k} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11 }}>
+          <span style={{ width: 7, height: 7, borderRadius: "50%", background: KIND_COLOR[k], display: "inline-block" }} />
+          <span style={{ fontFamily: "var(--font-mono)", color: "#718484", fontWeight: 600 }}>{k}</span>
         </span>
       ))}
     </div>
@@ -202,8 +203,8 @@ function Legend() {
 function TimelineTrack({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ position: "relative" }}>
-      <div style={{ position: "absolute", left: 95, top: 0, bottom: 0, width: 1, background: "#EBF2F2" }} />
-      <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+      <div style={{ position: "absolute", left: 100, top: 0, bottom: 0, width: 2, background: "rgba(52, 193, 193, 0.25)" }} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {children}
       </div>
     </div>
@@ -225,39 +226,63 @@ function TrackRow({
 }) {
   const dotColor = statusDot === "fail" ? "#DB2424" : statusDot === "warn" ? "#EC9C13" : "#2BAB60"
   return (
-    <div style={{ display: "flex", gap: 0, opacity: dimmed ? 0.45 : 1 }}>
+    <div style={{ display: "flex", gap: 0, opacity: dimmed ? 0.5 : 1 }} className="animate-float-in">
       {/* Timestamp */}
-      <div style={{ width: 88, flexShrink: 0, padding: "14px 12px 14px 0", textAlign: "right", fontFamily: "var(--font-mono-jb), monospace", fontSize: 11, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", lineHeight: 1.4 }}>
+      <div style={{ width: 92, flexShrink: 0, padding: "12px 14px 12px 0", textAlign: "right", fontFamily: "var(--font-mono)", fontSize: 11, color: "#718484", fontWeight: 600, lineHeight: 1.4 }}>
         {time}
       </div>
       {/* Dot */}
-      <div style={{ width: 16, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <div style={{ marginTop: 18, width: 7, height: 7, borderRadius: "50%", background: KIND_COLOR[kindKey] ?? "#9AABAB", border: "2px solid #F9FBFB", flexShrink: 0 }} />
+      <div style={{ width: 18, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div style={{ marginTop: 14, width: 10, height: 10, borderRadius: "50%", background: KIND_COLOR[kindKey] ?? "#9AABAB", border: "2px solid #fff", boxShadow: "0 0 6px rgba(0,0,0,0.15)", flexShrink: 0 }} />
       </div>
       {/* Content */}
-      <div
-        style={{ flex: 1, padding: "10px 0 10px 16px", borderBottom: "1px solid var(--skeuo-border)", cursor: detail ? "pointer" : "default" }}
-        onClick={onToggle}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 9, fontWeight: 700, letterSpacing: "0.07em", color: KIND_COLOR[kindKey] ?? "#9AABAB", minWidth: 36 }}>
-            {KIND_LABEL[kindKey] ?? kindKey.toUpperCase().slice(0, 6)}
-          </span>
-          {(statusDot || severityColor) && (
-            <span style={{ width: 5, height: 5, borderRadius: "50%", flexShrink: 0, background: severityColor ?? dotColor, display: "inline-block" }} />
-          )}
-          <span style={{ fontSize: 13, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", lineHeight: 1.4 }}>{title}</span>
-          {detail && (
-            <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)" }}>{expanded ? "−" : "+"}</span>
+      <div style={{ flex: 1, marginLeft: 16 }}>
+        <div
+          className="glass-card"
+          style={{
+            padding: "12px 16px",
+            cursor: detail ? "pointer" : "default",
+            borderLeft: `4px solid ${KIND_COLOR[kindKey] ?? "#9AABAB"}`,
+          }}
+          onClick={onToggle}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, fontWeight: 800, letterSpacing: "0.05em", color: KIND_COLOR[kindKey] ?? "#9AABAB", background: "rgba(0,0,0,0.04)", padding: "2px 6px", borderRadius: 4 }}>
+              {KIND_LABEL[kindKey] ?? kindKey.toUpperCase()}
+            </span>
+            {(statusDot || severityColor) && (
+              <span style={{ width: 7, height: 7, borderRadius: "50%", flexShrink: 0, background: severityColor ?? dotColor, display: "inline-block" }} />
+            )}
+            <span style={{ fontSize: 13, color: "#1C2222", fontWeight: 600, lineHeight: 1.4, flex: 1 }}>{title}</span>
+            {detail && (
+              <span style={{ fontSize: 12, color: "#718484", fontWeight: 700 }}>{expanded ? "▲ Hide Payload" : "▼ View Payload"}</span>
+            )}
+          </div>
+          {expanded && detail && (
+            <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+              <pre className="code-block" style={{ margin: 0, maxHeight: 280 }}>
+                {detail}
+              </pre>
+            </div>
           )}
         </div>
-        {expanded && detail && (
-          <pre style={{ marginTop: 10, fontFamily: "var(--font-mono-jb), monospace", fontSize: 11, lineHeight: 1.7, color: "var(--skeuo-text-inset-color)", background: "var(--skeuo-bg)", boxShadow: "inset 6px 6px 10px 0 var(--skeuo-shadow-dark-strong), inset -6px -6px 10px 0 var(--skeuo-shadow-light)", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 4, padding: "10px 12px", overflow: "auto", whiteSpace: "pre-wrap" }}>
-            {detail}
-          </pre>
-        )}
       </div>
     </div>
+  )
+}
+
+function ModeBadge({ mode }: { mode: "demo" | "live" }) {
+  if (mode === "demo") {
+    return (
+      <span className="badge badge-primary">
+        Interactive Demo
+      </span>
+    )
+  }
+  return (
+    <span className="badge badge-success">
+      Live Session
+    </span>
   )
 }
 
@@ -272,25 +297,38 @@ export default function TimelinePage({ params }: { params: Promise<{ sessionId: 
     : (sess.timeline?.total_count ?? 0)
   const relevantCount = sess.mode === "demo"
     ? sess.scenario!.timeline.filter((e) => e.relevant).length
-    : totalCount   // live: all fetched events are considered relevant
+    : totalCount
 
   return (
-    <main style={{ padding: "clamp(20px,4vw,40px) clamp(20px,4vw,48px)", maxWidth: 860 }}>
+    <main className="animate-float-in">
 
       {/* Header */}
-      <div style={{ marginBottom: 32 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 8, fontFamily: "var(--font-mono-jb), monospace" }}>
-          03 / Timeline
+      <div style={{ marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#34C1C1", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 6 }}>
+          03 / Chronological Event Log
         </div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", letterSpacing: "-0.3px", marginBottom: 6 }}>
-          Investigation log
-        </h1>
-        <p style={{ fontSize: 13, color: "var(--skeuo-text-inset-color)" }}>
-          {sess.mode === "demo"
-            ? <>{totalCount} events captured — <span style={{ color: "#DB2424" }}>{relevantCount} relevant to this failure</span></>
-            : <>{totalCount} event{totalCount !== 1 ? "s" : ""} in session</>
-          }
-        </p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: "#1C2222", letterSpacing: "-0.5px" }}>
+            Investigation Event Timeline
+          </h1>
+          <ModeBadge mode={sess.mode} />
+        </div>
+      </div>
+
+      {/* Non-Technical Callout */}
+      <div className="info-callout" style={{ marginBottom: 28 }}>
+        <div className="info-callout-icon">i</div>
+        <div>
+          <strong>What is the Timeline?</strong> AI agents perform multiple file edits and terminal runs before a bug surfaces. The Timeline arranges every action chronologically so you can trace what happened step-by-step.
+        </div>
+      </div>
+
+      {/* Summary note */}
+      <div style={{ fontSize: 13, color: "#718484", marginBottom: 20 }}>
+        {sess.mode === "demo"
+          ? <>{totalCount} total events logged — <strong style={{ color: "#DB2424" }}>{relevantCount} key events directly linked to this failure</strong></>
+          : <>{totalCount} event signal{totalCount !== 1 ? "s" : ""} recorded in this session</>
+        }
       </div>
 
       {/* Mode-specific body */}

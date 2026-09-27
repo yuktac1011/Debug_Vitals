@@ -48,7 +48,7 @@ export default function CheckupPage({ params }: { params: Promise<{ sessionId: s
 
   return (
     <CheckupLayout
-      activeFailure={lastFail?.summary ?? (loadingTimeline ? "Loading…" : "No failures detected")}
+      activeFailure={lastFail?.summary ?? (loadingTimeline ? "Scanning live system…" : "No active failures detected")}
       ciStatus={ciStatus as "passing" | "failing" | "running"}
       testSummary={{
         total:  Number(testPayload?.total ?? 0),
@@ -56,7 +56,7 @@ export default function CheckupPage({ params }: { params: Promise<{ sessionId: s
         failed: Number(testPayload?.failed ?? 0),
       }}
       runtime={{
-        label:   `${runtime?.language ?? "Unknown"} ${runtime?.version ?? ""}`.trim(),
+        label:   `${runtime?.language ?? "Python/Node Environment"} ${runtime?.version ?? ""}`.trim(),
         version: runtime?.version ?? "",
         ok:      true,
       }}
@@ -92,161 +92,200 @@ function CheckupLayout({
   const hasFailure = ciStatus === "failing" || testSummary.failed > 0
 
   return (
-    <main style={{ padding: "clamp(20px,4vw,40px) clamp(20px,4vw,48px)", maxWidth: 860 }}>
+    <main className="animate-float-in">
 
       {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 8, fontFamily: "var(--font-mono-jb), monospace" }}>
-          01 / Checkup
+      <div style={{ marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#34C1C1", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 6 }}>
+          01 / System Health Scan
         </div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", letterSpacing: "-0.3px" }}>
-            Project state
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: "#1C2222", letterSpacing: "-0.5px" }}>
+            Project Checkup & Environment State
           </h1>
           <ModeBadge mode={mode} />
-          {mode === "live" && totalEvents !== undefined && (
-            <span style={{ fontSize: 12, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", fontFamily: "var(--font-mono-jb), monospace" }}>
-              {totalEvents} events
-            </span>
-          )}
+        </div>
+      </div>
+
+      {/* Non-Technical Info Banner */}
+      <div className="info-callout" style={{ marginBottom: 28 }}>
+        <div className="info-callout-icon">i</div>
+        <div>
+          <strong>What is Checkup?</strong> This step scans your active runtime version, installed packages, and CI test status. It highlights any environment mismatches before you waste time debugging the wrong code.
         </div>
       </div>
 
       {/* Active failure banner */}
-      {hasFailure && (
+      {hasFailure ? (
         <div style={{
-          padding: "14px 18px", marginBottom: 28,
-          background: "rgba(219,36,36,0.05)",
-          border: "1px solid rgba(219,36,36,0.2)",
-          borderRadius: 6,
-          display: "flex", alignItems: "center", gap: 12,
-        }}>
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#DB2424", flexShrink: 0, display: "inline-block" }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#DB2424", marginBottom: 2 }}>Active failure</div>
-            <div style={{ fontSize: 13, fontFamily: "var(--font-mono-jb), monospace", color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)" }}>
-              {activeFailure}
+          padding: "20px 24px", marginBottom: 32,
+          background: "rgba(219,36,36,0.06)",
+          border: "1px solid rgba(219,36,36,0.3)",
+          borderRadius: "var(--radius-sm)",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: 20, flexWrap: "wrap",
+        }} className="animate-pulse-error">
+          <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 260 }}>
+            <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#DB2424", flexShrink: 0, display: "inline-block" }} className="pulse-dot" />
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#DB2424", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 2 }}>
+                Active System Failure Detected
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#1C2222", fontFamily: "var(--font-mono)" }}>
+                {activeFailure}
+              </div>
             </div>
           </div>
-          <div style={{ display: "flex", gap: 20, flexShrink: 0 }}>
-            <Stat label="Failed" value={testSummary.failed} color="#DB2424" />
-            <Stat label="Passed" value={testSummary.passed} color="#2BAB60" />
-            <Stat label="Total"  value={testSummary.total}  color="#1C2222" />
+          <div style={{ display: "flex", gap: 20, flexShrink: 0, background: "rgba(255,255,255,0.7)", padding: "8px 16px", borderRadius: 8 }}>
+            <Stat label="Failed Tests" value={testSummary.failed} color="#DB2424" />
+            <Stat label="Passed Tests" value={testSummary.passed} color="#2BAB60" />
+            <Stat label="Total Run"     value={testSummary.total}  color="#1C2222" />
           </div>
+        </div>
+      ) : (
+        <div style={{
+          padding: "16px 20px", marginBottom: 28,
+          background: "rgba(43,171,96,0.06)",
+          border: "1px solid rgba(43,171,96,0.25)",
+          borderRadius: "var(--radius-sm)",
+          display: "flex", alignItems: "center", gap: 12,
+        }}>
+          <span className="dot dot-ok pulse-dot" />
+          <span style={{ fontSize: 13, fontWeight: 600, color: "#1e7d44" }}>
+            All system checks passing — No active environment errors.
+          </span>
         </div>
       )}
 
       {loading && (
-        <div style={{ fontSize: 12, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 24, fontFamily: "var(--font-mono-jb), monospace" }}>
-          Fetching session data&hellip;
+        <div style={{ marginBottom: 28 }}>
+          <div className="shimmer-loader" style={{ height: 60, marginBottom: 12 }} />
+          <div className="shimmer-loader" style={{ height: 120 }} />
         </div>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24 }}>
 
-        {/* Runtime */}
-        <Section title="Runtime">
-          <Field label="Environment" mono value={runtime.label || "—"} status={runtime.ok ? "ok" : "fail"} />
-          {!runtime.ok && runtime.expected && (
-            <Field label="Expected" mono value={runtime.expected} status="warn" />
-          )}
-        </Section>
-
-        {/* CI */}
-        <Section title="CI pipeline">
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-            <CIBadge status={ciStatus} />
-            <span style={{ fontSize: 12, color: "var(--skeuo-text-inset-color)" }}>
-              {ciStatus === "failing"
-                ? `${testSummary.failed} test${testSummary.failed !== 1 ? "s" : ""} failing`
-                : ciStatus === "passing"
-                ? "All tests passing"
-                : "Pipeline running"}
-            </span>
-          </div>
-          <div style={{ display: "flex", gap: 24 }}>
-            {[
-              { label: "Passed", value: testSummary.passed, color: "#2BAB60" },
-              { label: "Failed", value: testSummary.failed, color: "#DB2424" },
-              { label: "Total",  value: testSummary.total,  color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)" },
-            ].map(s => (
-              <div key={s.label}>
-                <div style={{ fontSize: 10, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 3 }}>{s.label}</div>
-                <div style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 18, fontWeight: 700, color: s.color }}>
-                  {s.value}
+        {/* Runtime Section */}
+        <Section title="Runtime & Language Environment" icon="⚡">
+          <div className="glass-card" style={{ padding: "18px 20px" }}>
+            <Field label="Detected Environment" mono value={runtime.label || "System Default"} status={runtime.ok ? "ok" : "fail"} />
+            {!runtime.ok && runtime.expected && (
+              <div style={{ marginTop: 10, padding: "10px 12px", background: "rgba(236,156,19,0.1)", border: "1px solid rgba(236,156,19,0.3)", borderRadius: 6 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#9c5e00" }}>⚠️ Version Mismatch</div>
+                <div style={{ fontSize: 12, color: "#1C2222", marginTop: 2 }}>
+                  CI Expected: <code>{runtime.expected}</code> vs Found: <code>{runtime.version}</code>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         </Section>
 
-        {/* Dependencies */}
+        {/* CI Pipeline Section */}
+        <Section title="CI/CD Pipeline Status" icon="🔄">
+          <div className="glass-card" style={{ padding: "18px 20px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <CIBadge status={ciStatus} />
+              <span style={{ fontSize: 12, color: "#636e72" }}>
+                {ciStatus === "failing"
+                  ? `${testSummary.failed} failing assertion${testSummary.failed !== 1 ? "s" : ""}`
+                  : ciStatus === "passing"
+                  ? "All test suites passed"
+                  : "Pipeline running"}
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: 20, paddingTop: 12, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+              {[
+                { label: "Passed", value: testSummary.passed, color: "#2BAB60" },
+                { label: "Failed", value: testSummary.failed, color: "#DB2424" },
+                { label: "Total Tests", value: testSummary.total, color: "#1C2222" },
+              ].map(s => (
+                <div key={s.label}>
+                  <div style={{ fontSize: 11, color: "#718484", marginBottom: 2 }}>{s.label}</div>
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 18, fontWeight: 700, color: s.color }}>
+                    {s.value}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Section>
+
+        {/* Dependencies Section */}
         {deps.length > 0 && (
-          <Section title="Dependencies" style={{ gridColumn: "1 / -1" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-              <thead>
-                <tr>
-                  {["Package", "Version", "Expected", "Status"].map(h => (
-                    <th key={h} style={{ textAlign: "left", padding: "6px 12px 6px 0", fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", borderBottom: "1px solid var(--skeuo-border)" }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {deps.map(dep => (
-                  <tr key={dep.name} style={{ borderBottom: "1px solid var(--skeuo-border)" }}>
-                    <td style={{ padding: "9px 12px 9px 0", fontFamily: "var(--font-mono-jb), monospace", color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", fontWeight: 500 }}>{dep.name}</td>
-                    <td style={{ padding: "9px 12px 9px 0", fontFamily: "var(--font-mono-jb), monospace", color: dep.ok ? "#1C2222" : "#DB2424" }}>{dep.version}</td>
-                    <td style={{ padding: "9px 12px 9px 0", fontFamily: "var(--font-mono-jb), monospace", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)" }}>{dep.expected ?? "—"}</td>
-                    <td style={{ padding: "9px 0" }}>
-                      <StatusDot ok={dep.ok} />
-                    </td>
+          <Section title="Key Project Dependencies" icon="📦" style={{ gridColumn: "1 / -1" }}>
+            <div className="glass-card" style={{ padding: "16px 20px", overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <thead>
+                  <tr>
+                    {["Package Name", "Current Version", "Expected / Compatible", "Status"].map(h => (
+                      <th key={h} style={{ textAlign: "left", padding: "8px 12px 8px 0", fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#9AABAB", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {deps.map(dep => (
+                    <tr key={dep.name} style={{ borderBottom: "1px solid rgba(0,0,0,0.04)" }}>
+                      <td style={{ padding: "10px 12px 10px 0", fontFamily: "var(--font-mono)", color: "#1C2222", fontWeight: 600 }}>{dep.name}</td>
+                      <td style={{ padding: "10px 12px 10px 0", fontFamily: "var(--font-mono)", color: dep.ok ? "#1C2222" : "#DB2424" }}>{dep.version}</td>
+                      <td style={{ padding: "10px 12px 10px 0", fontFamily: "var(--font-mono)", color: "#718484" }}>{dep.expected ?? "Match"}</td>
+                      <td style={{ padding: "10px 0" }}>
+                        <StatusDot ok={dep.ok} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </Section>
         )}
 
-        {/* Services */}
+        {/* Services Section */}
         {services.length > 0 && (
-          <Section title="Services">
-            {services.map(svc => (
-              <div key={svc.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--skeuo-border)" }}>
-                <span style={{ fontSize: 13, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)" }}>{svc.name}</span>
-                <span style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 11, fontWeight: 600, color: svc.status === "up" ? "#2BAB60" : svc.status === "down" ? "#DB2424" : "#EC9C13" }}>
-                  {svc.status}
-                </span>
-              </div>
-            ))}
+          <Section title="Connected Microservices" icon="🔌">
+            <div className="glass-card" style={{ padding: "16px 20px" }}>
+              {services.map(svc => (
+                <div key={svc.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "#1C2222" }}>{svc.name}</span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 700, color: svc.status === "up" ? "#2BAB60" : svc.status === "down" ? "#DB2424" : "#EC9C13" }}>
+                    {svc.status.toUpperCase()}
+                  </span>
+                </div>
+              ))}
+            </div>
           </Section>
         )}
 
         {/* Live: recent events list */}
         {mode === "live" && liveEvents && liveEvents.length > 0 && (
-          <Section title="Recent events" style={{ gridColumn: "1 / -1" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-              {liveEvents.slice(0, 8).map((ev, i) => (
-                <div key={ev.id} style={{
-                  display: "flex", alignItems: "baseline", gap: 14, padding: "8px 0",
-                  borderBottom: i < 7 ? "1px solid #EBF2F2" : "none",
-                }}>
-                  <span style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 10, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", flexShrink: 0, width: 72 }}>
-                    {new Date(ev.occurred_at).toLocaleTimeString()}
-                  </span>
-                  <span style={{
-                    fontSize: 9, fontWeight: 700, letterSpacing: "0.07em",
-                    color: EV_COLOR[ev.event_type] ?? "#9AABAB",
-                    minWidth: 60, fontFamily: "var(--font-mono-jb), monospace",
+          <Section title="Live Signal Stream" icon="🛰️" style={{ gridColumn: "1 / -1" }}>
+            <div className="glass-card" style={{ padding: "18px 20px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {liveEvents.slice(0, 8).map((ev) => (
+                  <div key={ev.id} style={{
+                    display: "flex", alignItems: "center", gap: 14, padding: "8px 12px",
+                    background: "rgba(255,255,255,0.5)", borderRadius: 6,
+                    borderLeft: `3px solid ${EV_COLOR[ev.event_type] ?? "#9AABAB"}`,
                   }}>
-                    {ev.event_type.replace("_", " ").toUpperCase()}
-                  </span>
-                  <span style={{ fontSize: 12, color: ev.severity === "error" || ev.severity === "critical" ? "#DB2424" : "#1C2222" }}>
-                    {ev.summary ?? "—"}
-                  </span>
-                </div>
-              ))}
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#718484", flexShrink: 0, width: 80 }}>
+                      {new Date(ev.occurred_at).toLocaleTimeString()}
+                    </span>
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, letterSpacing: "0.06em",
+                      color: EV_COLOR[ev.event_type] ?? "#9AABAB",
+                      minWidth: 90, fontFamily: "var(--font-mono)",
+                    }}>
+                      {ev.event_type.replace("_", " ").toUpperCase()}
+                    </span>
+                    <span style={{ fontSize: 13, color: ev.severity === "error" || ev.severity === "critical" ? "#DB2424" : "#1C2222", fontWeight: 500 }}>
+                      {ev.summary ?? "—"}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </Section>
         )}
@@ -261,11 +300,12 @@ const EV_COLOR: Record<string, string> = {
   test_result: "#EC9C13", ci_result: "#DB2424", dependency: "#EC9C13", custom: "#9AABAB",
 }
 
-function Section({ title, children, style }: { title: string; children: React.ReactNode; style?: React.CSSProperties }) {
+function Section({ title, icon, children, style }: { title: string; icon?: string; children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div style={style}>
-      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 14, paddingBottom: 10, borderBottom: "1px solid var(--skeuo-header-border)" }}>
-        {title}
+      <div style={{ fontSize: 13, fontWeight: 700, color: "#1C2222", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+        <span>{icon}</span>
+        <span>{title}</span>
       </div>
       {children}
     </div>
@@ -275,9 +315,9 @@ function Section({ title, children, style }: { title: string; children: React.Re
 function Field({ label, value, mono, status }: { label: string; value: string; mono?: boolean; status?: "ok" | "fail" | "warn" }) {
   const color = status === "fail" ? "#DB2424" : status === "warn" ? "#b87100" : "#1C2222"
   return (
-    <div style={{ marginBottom: 12 }}>
-      <div style={{ fontSize: 10, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 3 }}>{label}</div>
-      <div style={{ fontSize: 13, fontFamily: mono ? "var(--font-mono-jb), monospace" : undefined, color, fontWeight: status ? 500 : 400 }}>
+    <div>
+      <div style={{ fontSize: 11, color: "#718484", marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 14, fontFamily: mono ? "var(--font-mono)" : undefined, color, fontWeight: 600 }}>
         {value}
       </div>
     </div>
@@ -287,21 +327,21 @@ function Field({ label, value, mono, status }: { label: string; value: string; m
 function Stat({ label, value, color }: { label: string; value: number; color: string }) {
   return (
     <div style={{ textAlign: "right" }}>
-      <div style={{ fontSize: 10, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 2 }}>{label}</div>
-      <div style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 14, fontWeight: 700, color }}>{value}</div>
+      <div style={{ fontSize: 10, color: "#718484", marginBottom: 2 }}>{label}</div>
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, fontWeight: 800, color }}>{value}</div>
     </div>
   )
 }
 
 function CIBadge({ status }: { status: "passing" | "failing" | "running" }) {
   const cfg = {
-    passing: { bg: "rgba(43,171,96,0.08)",  border: "rgba(43,171,96,0.2)",   color: "#2BAB60", label: "passing" },
-    failing: { bg: "rgba(219,36,36,0.07)",  border: "rgba(219,36,36,0.2)",   color: "#DB2424", label: "failing" },
-    running: { bg: "rgba(236,156,19,0.07)", border: "rgba(236,156,19,0.22)", color: "#b87100", label: "running" },
+    passing: { badge: "badge-success", dot: "dot-ok", label: "Pipeline Passing" },
+    failing: { badge: "badge-error",   dot: "dot-error", label: "Pipeline Failing" },
+    running: { badge: "badge-warning", dot: "dot-warn", label: "Pipeline Running" },
   }[status]
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600, background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}>
-      <span style={{ width: 5, height: 5, borderRadius: "50%", background: cfg.color, display: "inline-block" }} />
+    <span className={`badge ${cfg.badge}`}>
+      <span className={`dot ${cfg.dot}`} />
       {cfg.label}
     </span>
   )
@@ -309,9 +349,9 @@ function CIBadge({ status }: { status: "passing" | "failing" | "running" }) {
 
 function StatusDot({ ok }: { ok: boolean }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600, color: ok ? "#2BAB60" : "#DB2424" }}>
-      <span style={{ width: 5, height: 5, borderRadius: "50%", background: ok ? "#2BAB60" : "#DB2424", display: "inline-block" }} />
-      {ok ? "ok" : "mismatch"}
+    <span className={`badge ${ok ? "badge-success" : "badge-error"}`}>
+      <span className={`dot ${ok ? "dot-ok" : "dot-error"}`} />
+      {ok ? "Compatible" : "Mismatch"}
     </span>
   )
 }
@@ -319,14 +359,14 @@ function StatusDot({ ok }: { ok: boolean }) {
 function ModeBadge({ mode }: { mode: "demo" | "live" }) {
   if (mode === "demo") {
     return (
-      <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 3, background: "rgba(52,193,193,0.1)", border: "1px solid rgba(52,193,193,0.25)", color: "#1fa3a3", fontFamily: "var(--font-mono-jb), monospace" }}>
-        demo
+      <span className="badge badge-primary">
+        Interactive Demo
       </span>
     )
   }
   return (
-    <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 3, background: "rgba(43,171,96,0.1)", border: "1px solid rgba(43,171,96,0.25)", color: "#2BAB60", fontFamily: "var(--font-mono-jb), monospace" }}>
-      live
+    <span className="badge badge-success">
+      Live Session
     </span>
   )
 }

@@ -10,61 +10,74 @@ const KIND_COLOR: Record<CausalStep["kind"], string> = {
 }
 
 const KIND_LABEL: Record<CausalStep["kind"], string> = {
-  agent: "Agent action",
+  agent: "Agent Action",
   env:   "Environment",
-  test:  "Test result",
-  ci:    "CI",
+  test:  "Test Result",
+  ci:    "CI Pipeline",
   dep:   "Dependency",
-  git:   "Code change",
+  git:   "Code Change",
 }
 
 export default function CausalChain({ steps }: { steps: CausalStep[] }) {
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-start", gap: 0 }}>
+    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }} className="glass-card-container">
       {steps.map((step, i) => (
-        <div key={step.id} style={{ display: "flex", alignItems: "flex-start" }}>
+        <div key={step.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {/* Step card */}
-          <div style={{
-            width: 156,
+          <div className="glass-card" style={{
+            width: 175,
+            minHeight: 130,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
             background: "#fff",
-            border: `1px solid ${step.status === "fail" ? "rgba(219,36,36,0.2)" : "#D8E4E4"}`,
-            borderTop: `3px solid ${KIND_COLOR[step.kind]}`,
-            borderRadius: 6,
+            border: `1px solid ${step.status === "fail" ? "rgba(219,36,36,0.3)" : "rgba(0,0,0,0.08)"}`,
+            borderTop: `4px solid ${KIND_COLOR[step.kind]}`,
+            borderRadius: 8,
             padding: "12px 14px",
+            boxShadow: "var(--shadow-neo-sm)",
           }}>
-            <div style={{
-              fontSize: 9,
-              fontWeight: 700,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: KIND_COLOR[step.kind],
-              marginBottom: 5,
-            }}>
-              {KIND_LABEL[step.kind]}
+            <div>
+              <div style={{
+                fontSize: 10,
+                fontWeight: 800,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                color: KIND_COLOR[step.kind],
+                marginBottom: 6,
+                fontFamily: "var(--font-mono)",
+              }}>
+                {KIND_LABEL[step.kind]}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#1C2222", lineHeight: 1.35, marginBottom: 4 }}>
+                {step.label}
+              </div>
+              <div style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 11,
+                color: "#718484",
+                lineHeight: 1.4,
+              }}>
+                {step.sublabel}
+              </div>
             </div>
-            <div style={{ fontSize: 12, fontWeight: 500, color: "#1C2222", lineHeight: 1.35, marginBottom: 4 }}>
-              {step.label}
-            </div>
-            <div style={{
-              fontFamily: "var(--font-mono-jb), monospace",
-              fontSize: 10,
-              color: "#718484",
-              lineHeight: 1.4,
-            }}>
-              {step.sublabel}
-            </div>
+
             {step.status === "fail" && (
               <div style={{
                 marginTop: 8,
                 display: "inline-flex",
                 alignItems: "center",
-                gap: 4,
+                gap: 5,
                 fontSize: 10,
-                fontWeight: 600,
+                fontWeight: 700,
                 color: "#DB2424",
+                background: "rgba(219,36,36,0.08)",
+                padding: "2px 8px",
+                borderRadius: 4,
+                width: "fit-content",
               }}>
-                <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#DB2424", display: "inline-block" }} />
-                failure
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#DB2424", display: "inline-block" }} className="pulse-dot" />
+                Failure
               </div>
             )}
           </div>
@@ -74,11 +87,11 @@ export default function CausalChain({ steps }: { steps: CausalStep[] }) {
             <div style={{
               display: "flex",
               alignItems: "center",
-              padding: "0 6px",
-              marginTop: 24,
-              color: "#9AABAB",
-              fontSize: 16,
-              lineHeight: 1,
+              justifyContent: "center",
+              color: "#34C1C1",
+              fontSize: 20,
+              fontWeight: 800,
+              padding: "0 2px",
               flexShrink: 0,
             }}>
               &rarr;

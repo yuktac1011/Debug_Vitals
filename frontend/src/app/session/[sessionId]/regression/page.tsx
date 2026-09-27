@@ -22,8 +22,8 @@ function DemoView({ scenario }: { scenario: NonNullable<ReturnType<typeof useSes
 
   if (!scenario.verified) {
     return (
-      <div style={{ padding: "24px", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 6, color: "var(--skeuo-text-inset-color)", fontSize: 13 }}>
-        Regression Guard is available after the diagnosis is verified. Complete step 04 first.
+      <div style={{ padding: "24px", background: "rgba(236,156,19,0.08)", border: "1px solid rgba(236,156,19,0.3)", borderRadius: "var(--radius-sm)", color: "#9c5e00", fontSize: 13, fontWeight: 600 }}>
+        ⚠️ Regression Guard is available after the diagnosis is verified. Complete Step 04 (Verification) first.
       </div>
     )
   }
@@ -35,8 +35,8 @@ function DemoView({ scenario }: { scenario: NonNullable<ReturnType<typeof useSes
 
       {/* Root cause reminder */}
       <div style={{ marginBottom: 28 }}>
-        <SectionLabel>Root cause</SectionLabel>
-        <div style={{ padding: "14px 18px", background: "var(--skeuo-bg)", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 6, fontSize: 13, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", lineHeight: 1.55 }} className="skeuo-panel">
+        <SectionLabel>Diagnosed Root Cause</SectionLabel>
+        <div className="glass-card" style={{ padding: "18px 22px", fontSize: 14, color: "#1C2222", lineHeight: 1.55, fontWeight: 600, borderLeft: "4px solid #2BAB60" }}>
           {scenario.rootCause}
         </div>
       </div>
@@ -44,7 +44,7 @@ function DemoView({ scenario }: { scenario: NonNullable<ReturnType<typeof useSes
       {/* Generate button / code */}
       {!generated ? (
         <button className="btn btn-primary" onClick={() => setGenerated(true)}>
-          Generate regression test
+          ✨ Generate Targeted Regression Test
         </button>
       ) : (
         <TestCodeBlock code={scenario.regressionTest} />
@@ -92,25 +92,25 @@ function LiveForm({
   return (
     <div>
       {!diagnosisId && (
-        <div style={{ padding: "12px 16px", background: "rgba(236,156,19,0.06)", border: "1px solid rgba(236,156,19,0.2)", borderRadius: 4, color: "#b87100", fontSize: 12, marginBottom: 20 }}>
-          Run <strong>Diagnosis</strong> (step 02) first to get a Diagnosis ID, or enter one manually below.
+        <div style={{ padding: "14px 18px", background: "rgba(236,156,19,0.08)", border: "1px solid rgba(236,156,19,0.3)", borderRadius: 6, color: "#9c5e00", fontSize: 13, marginBottom: 20 }}>
+          💡 Run <strong>Step 02 (Diagnosis)</strong> first to get a Diagnosis ID, or paste one below manually.
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
+      <form onSubmit={handleSubmit} className="glass-card" style={{ padding: "24px 28px", marginBottom: 28 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 18, marginBottom: 24 }}>
 
-          <FieldRow label="Diagnosis ID" hint="Required — from step 02">
+          <FieldRow label="Diagnosis Reference ID" hint="Required — links test code to root cause">
             <input
               value={diagId}
               onChange={(e) => setDiagId(e.target.value)}
-              placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+              placeholder="Paste Diagnosis ID from Step 02"
               required
               style={inputStyle}
             />
           </FieldRow>
 
-          <FieldRow label="Top N causes" hint="How many root causes to cover with tests">
+          <FieldRow label="Target Root Causes to Cover" hint="Generates tests for top N causes">
             <input
               type="number"
               min={1} max={10}
@@ -120,50 +120,48 @@ function LiveForm({
             />
           </FieldRow>
 
-          <FieldRow label="Language" hint="Test framework language">
+          <FieldRow label="Programming Language & Framework" hint="Test code syntax style">
             <select value={language} onChange={(e) => setLanguage(e.target.value)} style={inputStyle}>
-              {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
+              {LANGUAGES.map((l) => <option key={l} value={l}>{l.toUpperCase()}</option>)}
             </select>
           </FieldRow>
 
-          <FieldRow label="Docker image" hint="Container for test execution (if run immediately)">
+          <FieldRow label="Docker Container Environment" hint="Used if running tests immediately">
             <select value={image} onChange={(e) => setImage(e.target.value)} style={inputStyle}>
               {DOCKER_IMAGES.map((img) => <option key={img} value={img}>{img}</option>)}
             </select>
           </FieldRow>
 
-          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", userSelect: "none" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer", userSelect: "none" }}>
             <input
               type="checkbox"
               checked={runNow}
               onChange={(e) => setRunNow(e.target.checked)}
-              style={{ width: 14, height: 14 }}
+              style={{ width: 16, height: 16 }}
             />
-            <span style={{ fontSize: 12, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)" }}>Run tests immediately after generation</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: "#1C2222" }}>Run generated test immediately inside sandbox container</span>
           </label>
 
         </div>
 
         {error && (
-          <div style={{ padding: "10px 14px", background: "rgba(219,36,36,0.06)", border: "1px solid rgba(219,36,36,0.2)", borderRadius: 4, color: "#DB2424", fontSize: 12, marginBottom: 16 }}>
+          <div style={{ padding: "12px 16px", background: "rgba(219,36,36,0.08)", border: "1px solid rgba(219,36,36,0.3)", borderRadius: 6, color: "#DB2424", fontSize: 13, fontWeight: 600, marginBottom: 18 }}>
             {error}
           </div>
         )}
 
-        <button type="submit" className="btn btn-primary" disabled={loading || !diagId.trim()} style={{ opacity: (loading || !diagId.trim()) ? 0.6 : 1 }}>
-          {loading ? "Generating…" : "Generate regression tests"}
+        <button type="submit" className="btn btn-primary" disabled={loading || !diagId.trim()}>
+          {loading ? "Generating Targeted Regression Tests…" : "✨ Generate Regression Test Code"}
         </button>
       </form>
 
       {result && <RegressionResult result={result} />}
 
       {/* Method note */}
-      <div style={{ borderTop: "1px solid var(--skeuo-border)", paddingTop: 20, marginTop: 32 }}>
-        <SectionLabel>Method</SectionLabel>
-        <p style={{ fontSize: 12, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", lineHeight: 1.65 }}>
-          The backend generates targeted test code from your top root causes.
-          With <em>run immediately</em>, tests execute in the specified container and results are recorded.
-          Add the generated tests to your CI pipeline to prevent regression.
+      <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: 20, marginTop: 32 }}>
+        <SectionLabel>Regression Guard Objective</SectionLabel>
+        <p style={{ fontSize: 13, color: "#636e72", lineHeight: 1.65 }}>
+          Regression Guard is intentionally scoped to generate <strong>one targeted test for the exact diagnosed failure gap</strong>. It locks in your fix so AI agents or developer commits cannot re-introduce the same bug in the future.
         </p>
       </div>
     </div>
@@ -172,18 +170,18 @@ function LiveForm({
 
 function RegressionResult({ result }: { result: RegressionGuardResponse }) {
   return (
-    <div style={{ marginTop: 28 }}>
+    <div className="glass-card" style={{ padding: "24px 28px", marginTop: 28 }}>
       {/* Summary row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 10, marginBottom: 24 }}>
-        <MetaCell label="Generated" value={String(result.tests_generated)} />
-        <MetaCell label="Run"       value={String(result.tests_run)} />
-        <MetaCell label="Passed"    value={String(result.tests_passed)} accent="#2BAB60" />
-        <MetaCell label="Failed"    value={String(result.tests_failed)} accent={result.tests_failed > 0 ? "#DB2424" : undefined} />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12, marginBottom: 24 }}>
+        <MetaCell label="Tests Generated" value={String(result.tests_generated)} />
+        <MetaCell label="Executed Runs"   value={String(result.tests_run)} />
+        <MetaCell label="Passed Runs"     value={String(result.tests_passed)} accent="#2BAB60" />
+        <MetaCell label="Failed Runs"     value={String(result.tests_failed)} accent={result.tests_failed > 0 ? "#DB2424" : undefined} />
       </div>
 
       {/* Individual tests */}
       {result.tests.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {result.tests.map((t) => (
             <TestCard key={t.id} test={t} />
           ))}
@@ -194,47 +192,52 @@ function RegressionResult({ result }: { result: RegressionGuardResponse }) {
 }
 
 function TestCard({ test }: { test: RegressionTestItem }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
   const statusColor = test.run_status === "passed" ? "#2BAB60"
     : test.run_status === "failed" ? "#DB2424"
     : test.generation_status === "completed" ? "#4B85BE"
     : "#9AABAB"
 
   return (
-    <div style={{ padding: "16px 18px", background: "var(--skeuo-bg)", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 6 }} className="skeuo-panel">
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: test.test_code ? 8 : 0 }}>
-        <span style={{ width: 6, height: 6, borderRadius: "50%", background: statusColor, display: "inline-block", flexShrink: 0 }} />
-        <span style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 12, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", flex: 1, wordBreak: "break-all" }}>
-          {test.target_file_path ?? `test-${test.id.slice(0, 8)}`}
-        </span>
-        <span style={{ fontSize: 10, fontFamily: "var(--font-mono-jb), monospace", color: statusColor }}>{test.run_status ?? test.generation_status}</span>
+    <div style={{ padding: "18px 20px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 8, boxShadow: "var(--shadow-neo-sm)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyBetween: "space-between", gap: 12, marginBottom: test.test_code ? 12 : 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: statusColor, display: "inline-block", flexShrink: 0 }} />
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 700, color: "#1C2222", wordBreak: "break-all" }}>
+            {test.target_file_path ?? `test_regression_${test.id.slice(0, 8)}.py`}
+          </span>
+          <span className="badge badge-primary" style={{ fontSize: 10 }}>{test.run_status ?? test.generation_status}</span>
+        </div>
         {test.test_code && (
           <button
             onClick={() => setOpen(!open)}
-            style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", padding: 0 }}
+            className="btn btn-sm btn-ghost"
           >
-            {open ? "hide" : "show"}
+            {open ? "Hide Code ▲" : "View Code ▼"}
           </button>
         )}
       </div>
+
       {open && test.test_code && (
-        <div>
-          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4 }}>
+        <div style={{ marginTop: 10 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
             <button
               onClick={() => navigator.clipboard.writeText(test.test_code!)}
-              className="btn btn-sm"
-              style={{ fontSize: 10, padding: "2px 8px" }}
-            >Copy</button>
+              className="btn btn-sm btn-secondary"
+            >📋 Copy Test Code</button>
           </div>
-          <pre style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 11, lineHeight: 1.75, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", background: "var(--skeuo-bg)", boxShadow: "inset 6px 6px 10px 0 var(--skeuo-shadow-dark-strong), inset -6px -6px 10px 0 var(--skeuo-shadow-light)", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 4, padding: "12px 14px", overflow: "auto", whiteSpace: "pre", maxHeight: 320 }}>
+          <pre className="code-block" style={{ margin: 0, maxHeight: 320 }}>
             {test.test_code}
           </pre>
         </div>
       )}
       {test.run_output && (
-        <pre style={{ marginTop: 8, fontFamily: "var(--font-mono-jb), monospace", fontSize: 10, lineHeight: 1.6, color: "var(--skeuo-text-inset-color)", background: "var(--skeuo-bg)", border: "1px solid #EBF2F2", borderRadius: 4, padding: "8px 10px", overflow: "auto", whiteSpace: "pre-wrap", maxHeight: 120 }}>
-          {test.run_output}
-        </pre>
+        <div style={{ marginTop: 12 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#718484", marginBottom: 4 }}>Test Execution Logs</div>
+          <pre className="code-block" style={{ color: "#a0aec0", fontSize: 11, maxHeight: 140, margin: 0 }}>
+            {test.run_output}
+          </pre>
+        </div>
       )}
     </div>
   )
@@ -244,34 +247,46 @@ function TestCard({ test }: { test: RegressionTestItem }) {
 
 function ConfirmedBanner() {
   return (
-    <div style={{ padding: "14px 20px", background: "rgba(43,171,96,0.05)", border: "1px solid rgba(43,171,96,0.2)", borderRadius: 6, marginBottom: 32, display: "flex", alignItems: "center", gap: 12 }}>
-      <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#2BAB60", flexShrink: 0, display: "inline-block" }} />
+    <div style={{ padding: "16px 22px", background: "rgba(43,171,96,0.08)", border: "1px solid rgba(43,171,96,0.3)", borderRadius: "var(--radius-sm)", marginBottom: 28, display: "flex", alignItems: "center", gap: 14 }}>
+      <span className="dot dot-ok pulse-dot" />
       <div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: "#2BAB60", marginBottom: 1 }}>Diagnosis confirmed</div>
-        <div style={{ fontSize: 12, color: "var(--skeuo-text-inset-color)" }}>Hypothesis verified in step 04. Regression test will cover the confirmed root cause.</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#1e7d44", marginBottom: 2 }}>Step 04 Verification Confirmed</div>
+        <div style={{ fontSize: 12, color: "#636e72" }}>Hypothesis empirically verified. Regression Guard will lock in the fix for this exact root cause.</div>
       </div>
     </div>
   )
 }
 
 function TestCodeBlock({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false)
+
+  function handleCopy() {
+    navigator.clipboard.writeText(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
-    <div>
+    <div style={{ marginTop: 24 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-        <div style={{ fontSize: 13, fontWeight: 500, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)" }}>Regression test generated</div>
-        <button className="btn btn-sm btn-secondary" onClick={() => navigator.clipboard.writeText(code)}>Copy</button>
+        <div style={{ fontSize: 15, fontWeight: 700, color: "#1C2222" }}>Targeted Regression Test Generated</div>
+        <button className="btn btn-sm btn-secondary" onClick={handleCopy}>
+          {copied ? "✓ Copied to Clipboard" : "📋 Copy Code"}
+        </button>
       </div>
-      <pre style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 12, lineHeight: 1.75, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", background: "var(--skeuo-bg)", boxShadow: "inset 6px 6px 10px 0 var(--skeuo-shadow-dark-strong), inset -6px -6px 10px 0 var(--skeuo-shadow-light)", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 6, padding: "18px 20px", overflow: "auto", whiteSpace: "pre" }}>
+
+      <pre className="code-block" style={{ maxHeight: 360, marginBottom: 24 }}>
         {code}
       </pre>
-      <div style={{ marginTop: 20, padding: "14px 18px", background: "var(--skeuo-bg)", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 6 }} className="skeuo-panel">
-        <SectionLabel>Instructions</SectionLabel>
-        <ol style={{ paddingLeft: 16, fontSize: 12, color: "var(--skeuo-text-inset-color)", lineHeight: 1.75, display: "flex", flexDirection: "column", gap: 4 }}>
-          <li>Add this test to your project&apos;s test suite.</li>
-          <li>Run it against the current codebase to confirm it fails.</li>
-          <li>Apply the fix identified in the root cause analysis.</li>
-          <li>Run the test again — it should now pass.</li>
-          <li>Keep it in CI to prevent regression.</li>
+
+      <div className="glass-card" style={{ padding: "20px 24px" }}>
+        <SectionLabel>How to Integrate This Test</SectionLabel>
+        <ol style={{ paddingLeft: 18, fontSize: 13, color: "#636e72", lineHeight: 1.8, display: "flex", flexDirection: "column", gap: 4 }}>
+          <li>Save this code to your project&apos;s <code>tests/</code> directory.</li>
+          <li>Run the test against your un-fixed codebase to confirm it reproduces the failure.</li>
+          <li>Apply the environment or code fix identified in Step 02 (Diagnosis).</li>
+          <li>Rerun the test — it should now pass cleanly.</li>
+          <li>Commit it to your repository so CI automatically guards against regressions.</li>
         </ol>
       </div>
     </div>
@@ -280,7 +295,7 @@ function TestCodeBlock({ code }: { code: string }) {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 10, fontFamily: "var(--font-mono-jb), monospace" }}>
+    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9AABAB", marginBottom: 10, fontFamily: "var(--font-mono)" }}>
       {children}
     </div>
   )
@@ -288,9 +303,9 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 function MetaCell({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
-    <div style={{ padding: "10px 12px", background: "var(--skeuo-bg)", border: "1px solid #EBF2F2", borderRadius: 4, textAlign: "center" }}>
-      <div style={{ fontSize: 10, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 4 }}>{label}</div>
-      <div style={{ fontSize: 20, fontWeight: 700, color: accent ?? "#1C2222", fontFamily: "var(--font-mono-jb), monospace" }}>{value}</div>
+    <div style={{ padding: "12px 14px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.06)", borderRadius: 6, textAlign: "center" }}>
+      <div style={{ fontSize: 11, color: "#718484", marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: accent ?? "#1C2222", fontFamily: "var(--font-mono)" }}>{value}</div>
     </div>
   )
 }
@@ -298,20 +313,35 @@ function MetaCell({ label, value, accent }: { label: string; value: string; acce
 function FieldRow({ label, hint, children }: { label: string; hint: string; children: React.ReactNode }) {
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-        <label style={{ fontSize: 12, fontWeight: 600, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)" }}>{label}</label>
-        <span style={{ fontSize: 11, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)" }}>{hint}</span>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+        <label style={{ fontSize: 13, fontWeight: 700, color: "#1C2222" }}>{label}</label>
+        <span style={{ fontSize: 12, color: "#718484" }}>{hint}</span>
       </div>
       {children}
     </div>
   )
 }
 
+function ModeBadge({ mode }: { mode: "demo" | "live" }) {
+  if (mode === "demo") {
+    return (
+      <span className="badge badge-primary">
+        Interactive Demo
+      </span>
+    )
+  }
+  return (
+    <span className="badge badge-success">
+      Live Session
+    </span>
+  )
+}
+
 const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "8px 10px", fontSize: 13,
-  border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 4,
-  background: "var(--skeuo-bg)", color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)",
-  boxSizing: "border-box",
+  width: "100%", padding: "10px 14px", fontSize: 13,
+  border: "1px solid #c4c9cf", borderRadius: 6,
+  background: "#fff", color: "#1C2222",
+  boxSizing: "border-box", outline: "none",
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -319,26 +349,30 @@ const inputStyle: React.CSSProperties = {
 export default function RegressionPage({ params }: { params: Promise<{ sessionId: string }> }) {
   const { sessionId } = use(params)
   const sess          = useSession(sessionId)
-
-  // Pull the diagnosis ID from the live session state (populated after step 02)
-  const diagnosisId = sess.mode === "live" ? sess.diagnosis?.id : undefined
+  const diagnosisId   = sess.mode === "live" ? sess.diagnosis?.id : undefined
 
   return (
-    <main style={{ padding: "clamp(20px,4vw,40px) clamp(20px,4vw,48px)", maxWidth: 820 }} className="skeuo-panel">
+    <main className="animate-float-in">
 
       {/* Header */}
-      <div style={{ marginBottom: 36 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 8, fontFamily: "var(--font-mono-jb), monospace" }}>
-          05 / Regression Guard
+      <div style={{ marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#34C1C1", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 6 }}>
+          05 / Automated Fix Guarding
         </div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", letterSpacing: "-0.3px", marginBottom: 6 }}>
-          Generate regression test
-        </h1>
-        <p style={{ fontSize: 13, color: "var(--skeuo-text-inset-color)" }}>
-          {sess.mode === "demo"
-            ? "One targeted test for this exact failure — prevents recurrence."
-            : "Generate targeted tests from your root cause analysis to prevent regression."}
-        </p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: "#1C2222", letterSpacing: "-0.5px" }}>
+            Generate Targeted Regression Test
+          </h1>
+          <ModeBadge mode={sess.mode} />
+        </div>
+      </div>
+
+      {/* Non-Technical Info Banner */}
+      <div className="info-callout" style={{ marginBottom: 28 }}>
+        <div className="info-callout-icon">i</div>
+        <div>
+          <strong>What is Regression Guard?</strong> Once a root cause is diagnosed, Step 05 auto-generates a targeted unit test designed specifically to reproduce that exact failure condition so it never happens again.
+        </div>
       </div>
 
       {sess.mode === "demo" ? (

@@ -4,7 +4,7 @@ import { use, useState } from "react"
 import { useSession } from "@/lib/useSession"
 import CausalChain from "@/components/shared/CausalChain"
 import EvidenceBlocks from "@/components/shared/EvidenceBlocks"
-import type { DiagnosisResponse, RootCauseItem } from "@/lib/api"
+import type { DiagnosisResponse } from "@/lib/api"
 import type { Evidence, CausalStep, RootCause } from "@/lib/demoData"
 
 export default function DiagnosisPage({ params }: { params: Promise<{ sessionId: string }> }) {
@@ -13,123 +13,117 @@ export default function DiagnosisPage({ params }: { params: Promise<{ sessionId:
   const [topN, setTopN]   = useState(5)
   const [withGraph, setWithGraph] = useState(false)
 
-  // ── Demo mode ───────────────────────────────────────────────────────────────
-  if (sess.mode === "demo" && sess.scenario) {
-    const s = sess.scenario
-    return (
-      <DiagnosisLayout
-        rootCause={s.rootCause}
-        confidence={s.confidence}
-        explanation={s.explanation}
-        rootCauses={s.rootCauses}
-        causalChain={s.causalChain}
-        evidence={s.evidence}
-        affectedComponents={s.affectedComponents}
-        nextStep={s.nextStep}
-        sessionId={sessionId}
-        mode="demo"
-      />
-    )
-  }
-
-  // ── Live mode ────────────────────────────────────────────────────────────────
-  const { diagnosis, loadingDiagnosis, error, fetchDiagnosis } = sess
-
-  // Map live API response → display types
-  const liveCauses: RootCause[] = (diagnosis?.root_causes ?? []).map(c => ({
-    rank:    c.rank,
-    score:   c.score,
-    reason:  c.reason,
-  }))
-
-  const liveChain: CausalStep[] = (diagnosis?.root_causes ?? []).slice(0, 5).map((c, i) => ({
-    id:       c.event_id ?? `c${i}`,
-    label:    `Root cause #${c.rank}`,
-    sublabel: c.reason.slice(0, 60) + (c.reason.length > 60 ? "…" : ""),
-    kind:     "agent" as const,
-    status:   "fail" as const,
-  }))
-
-  const liveEvidence: Evidence[] = Object.entries(
-    (diagnosis?.root_causes?.[0]?.contributing_factors ?? {})
-  ).map(([k, v], i) => ({
-    id:     `ev${i}`,
-    label:  k,
-    value:  `weight: ${(v * 100).toFixed(0)}%`,
-    status: v > 0.5 ? "fail" : "warn",
-  } as Evidence))
-
   return (
-    <main style={{ padding: "clamp(20px,4vw,40px) clamp(20px,4vw,48px)", maxWidth: 900 }}>
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 8, fontFamily: "var(--font-mono-jb), monospace" }}>
-          02 / Diagnosis
+    <main className="animate-float-in">
+      {/* Uniform Page Header */}
+      <div style={{ marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#34C1C1", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 6 }}>
+          02 / AI Root Cause Analysis
         </div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", letterSpacing: "-0.3px", marginBottom: 6 }}>
-          Root cause analysis
-        </h1>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: "#1C2222", letterSpacing: "-0.5px" }}>
+            Root Cause Diagnosis & Reasoning
+          </h1>
+          <ModeBadge mode={sess.mode} />
+        </div>
       </div>
 
-      {/* Run controls */}
-      {!diagnosis && (
-        <div style={{
-          padding: "20px 24px", marginBottom: 28,
-          background: "var(--skeuo-bg)", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 6,
-        }} className="skeuo-panel">
-          <div style={{ fontSize: 13, fontWeight: 500, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", marginBottom: 14 }}>
-            Run diagnosis on this session
+      {/* Non-Technical Info Banner */}
+      <div className="info-callout" style={{ marginBottom: 28 }}>
+        <div className="info-callout-icon">i</div>
+        <div>
+          <strong>What is Diagnosis?</strong> Rather than dumping raw error logs, AgentDoctor calculates the exact root cause behind your failure and explains it in plain English with supporting evidence.
+        </div>
+      </div>
+
+      {/* Demo mode */}
+      {sess.mode === "demo" && sess.scenario && (
+        <DiagnosisLayout
+          rootCause={sess.scenario.rootCause}
+          confidence={sess.scenario.confidence}
+          explanation={sess.scenario.explanation}
+          rootCauses={sess.scenario.rootCauses}
+          causalChain={sess.scenario.causalChain}
+          evidence={sess.scenario.evidence}
+          affectedComponents={sess.scenario.affectedComponents}
+          nextStep={sess.scenario.nextStep}
+          sessionId={sessionId}
+          mode="demo"
+        />
+      )}
+
+      {/* Live mode controls */}
+      {sess.mode === "live" && !sess.diagnosis && (
+        <div className="glass-card" style={{ padding: "24px 28px", marginBottom: 28 }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#1C2222", marginBottom: 8 }}>
+            Trigger Root Cause Reasoning Engine
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14, flexWrap: "wrap" }}>
+          <p style={{ fontSize: 13, color: "#718484", marginBottom: 18 }}>
+            Analyze ingested signals for this session and rank potential root causes by evidence probability.
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 20, flexWrap: "wrap" }}>
             <div>
-              <label style={{ fontSize: 11, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", display: "block", marginBottom: 4 }}>Top N root causes</label>
+              <label style={{ fontSize: 11, fontWeight: 700, color: "#718484", display: "block", marginBottom: 4 }}>Top Causes to Rank</label>
               <input
-                type="number" min={1} max={50} value={topN}
+                type="number" min={1} max={10} value={topN}
                 onChange={e => setTopN(Number(e.target.value))}
                 style={{
-                  width: 70, padding: "5px 8px", borderRadius: 4, border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)",
-                  fontFamily: "var(--font-mono-jb), monospace", fontSize: 12, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)",
-                  background: "var(--skeuo-bg)", outline: "none",
+                  width: 80, padding: "6px 10px", borderRadius: 6, border: "1px solid #c4c9cf",
+                  fontFamily: "var(--font-mono)", fontSize: 13, color: "#1C2222",
+                  background: "#fff", outline: "none",
                 }}
               />
             </div>
-            <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--skeuo-text-inset-color)", cursor: "pointer" }}>
-              <input type="checkbox" checked={withGraph} onChange={e => setWithGraph(e.target.checked)} />
-              Include correlation graph
+            <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#1C2222", cursor: "pointer", userSelect: "none" }}>
+              <input type="checkbox" checked={withGraph} onChange={e => setWithGraph(e.target.checked)} style={{ width: 16, height: 16 }} />
+              Include NetworkX Causal Graph
             </label>
           </div>
           <button
             className="btn btn-primary"
-            disabled={loadingDiagnosis}
-            onClick={() => fetchDiagnosis({ top_n: topN, include_graph: withGraph })}
+            disabled={sess.loadingDiagnosis}
+            onClick={() => sess.fetchDiagnosis({ top_n: topN, include_graph: withGraph })}
           >
-            {loadingDiagnosis ? "Running diagnosis…" : "Run diagnosis"}
+            {sess.loadingDiagnosis ? "Running Diagnostic Engine…" : "Run Root Cause Diagnosis"}
           </button>
-          {error && <div style={{ marginTop: 10, fontSize: 12, color: "#DB2424" }}>{error}</div>}
+          {sess.error && <div style={{ marginTop: 12, fontSize: 13, color: "#DB2424", fontWeight: 600 }}>{sess.error}</div>}
         </div>
       )}
 
-      {diagnosis && (
+      {/* Live mode result */}
+      {sess.mode === "live" && sess.diagnosis && (
         <>
           <DiagnosisLayout
-            rootCause={diagnosis.root_causes[0]?.reason ?? "No root cause identified"}
-            confidence={Math.round((diagnosis.root_causes[0]?.score ?? 0) * 100)}
-            explanation={diagnosis.explanation ?? ""}
-            rootCauses={liveCauses}
-            causalChain={liveChain}
-            evidence={liveEvidence}
+            rootCause={sess.diagnosis.root_causes[0]?.reason ?? "No root cause identified"}
+            confidence={Math.round((sess.diagnosis.root_causes[0]?.score ?? 0) * 100)}
+            explanation={sess.diagnosis.explanation ?? ""}
+            rootCauses={(sess.diagnosis.root_causes ?? []).map(c => ({ rank: c.rank, score: c.score, reason: c.reason }))}
+            causalChain={(sess.diagnosis.root_causes ?? []).slice(0, 5).map((c, i) => ({
+              id: c.event_id ?? `c${i}`,
+              label: `Root cause #${c.rank}`,
+              sublabel: c.reason.slice(0, 60) + (c.reason.length > 60 ? "…" : ""),
+              kind: "agent" as const,
+              status: "fail" as const,
+            }))}
+            evidence={Object.entries(sess.diagnosis.root_causes?.[0]?.contributing_factors ?? {}).map(([k, v], i) => ({
+              id: `ev${i}`,
+              label: k,
+              value: `Correlation evidence weight: ${(v * 100).toFixed(0)}%`,
+              status: v > 0.5 ? "fail" : "warn",
+            } as Evidence))}
             affectedComponents={[]}
-            nextStep={`Diagnosis ID: ${diagnosis.id}`}
+            nextStep={`Diagnosis ID: ${sess.diagnosis.id}`}
             sessionId={sessionId}
             mode="live"
-            liveData={diagnosis}
+            liveData={sess.diagnosis}
           />
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 24 }}>
             <button
               className="btn btn-secondary btn-sm"
-              onClick={() => fetchDiagnosis({ top_n: topN, include_graph: withGraph })}
-              disabled={loadingDiagnosis}
+              onClick={() => sess.fetchDiagnosis({ top_n: topN, include_graph: withGraph })}
+              disabled={sess.loadingDiagnosis}
             >
-              {loadingDiagnosis ? "Re-running…" : "Re-run diagnosis"}
+              {sess.loadingDiagnosis ? "Re-evaluating…" : "Re-run Diagnosis Engine"}
             </button>
           </div>
         </>
@@ -158,59 +152,39 @@ function DiagnosisLayout({
 }) {
   return (
     <div>
-      {/* Demo page header */}
-      {mode === "demo" && (
-        <div style={{ marginBottom: 28 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 8, fontFamily: "var(--font-mono-jb), monospace" }}>
-            02 / Diagnosis
-          </div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", letterSpacing: "-0.3px" }}>
-            Root cause analysis
-          </h1>
-        </div>
-      )}
-
       {/* Live metadata strip */}
       {mode === "live" && liveData && (
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
-          <StatusPill status={liveData.status} />
-          <span style={{ fontSize: 11, fontFamily: "var(--font-mono-jb), monospace", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)" }}>
-            {liveData.events_analysed ?? 0} events analysed
+          <span className="badge badge-success">
+            Status: {liveData.status}
           </span>
-          <span style={{ fontSize: 11, fontFamily: "var(--font-mono-jb), monospace", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)" }}>
-            {(liveData.duration_ms ?? 0).toFixed(0)} ms
+          <span style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: "#718484" }}>
+            Analysed {liveData.events_analysed ?? 0} signals
           </span>
-          <span style={{ fontSize: 11, fontFamily: "var(--font-mono-jb), monospace", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)" }}>
-            source: {liveData.explanation_source ?? "template"}
+          <span style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: "#718484" }}>
+            Duration: {(liveData.duration_ms ?? 0).toFixed(0)} ms
           </span>
-          <span style={{
-            fontFamily: "var(--font-mono-jb), monospace", fontSize: 10,
-            color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", background: "var(--skeuo-bg)", boxShadow: "inset 6px 6px 10px 0 var(--skeuo-shadow-dark-strong), inset -6px -6px 10px 0 var(--skeuo-shadow-light)", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)",
-            borderRadius: 3, padding: "1px 7px",
-          }}>
-            {liveData.id}
+          <span style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: "#718484" }}>
+            Source: {liveData.explanation_source ?? "template"}
           </span>
         </div>
       )}
 
-      {/* Root cause block */}
-      <div style={{
+      {/* Primary Root Cause Block */}
+      <div className="glass-card" style={{
         padding: "24px 28px", marginBottom: 32,
-        background: "var(--skeuo-bg)",
-        border: "1px solid rgba(219,36,36,0.22)",
-        borderLeft: "4px solid #DB2424",
-        borderRadius: 6,
-      }} className="skeuo-panel">
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 24 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#DB2424", marginBottom: 12, fontFamily: "var(--font-mono-jb), monospace" }}>
-              Root cause
+        borderLeft: "6px solid #DB2424",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: 280 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#DB2424", marginBottom: 10, fontFamily: "var(--font-mono)" }}>
+              Primary Root Cause Identified
             </div>
-            <p style={{ fontSize: 15, fontWeight: 500, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", lineHeight: 1.55, marginBottom: explanation ? 16 : 0, maxWidth: 560 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1C2222", lineHeight: 1.45, marginBottom: explanation ? 12 : 0 }}>
               {rootCause}
-            </p>
+            </h2>
             {explanation && (
-              <p style={{ fontSize: 13, color: "var(--skeuo-text-inset-color)", lineHeight: 1.65, maxWidth: 560 }}>
+              <p style={{ fontSize: 13, color: "#636e72", lineHeight: 1.6 }}>
                 {explanation}
               </p>
             )}
@@ -221,79 +195,56 @@ function DiagnosisLayout({
 
       {/* Causal chain */}
       {causalChain.length > 0 && (
-        <div style={{ marginBottom: 36 }}>
-          <SectionHeader title="Causal chain" subtitle="How the failure propagated" />
+        <div style={{ marginBottom: 32 }}>
+          <SectionHeader title="Chronological Causal Chain" subtitle="How the initial change propagated into a system failure" />
           <CausalChain steps={causalChain} />
         </div>
       )}
 
       {/* Evidence */}
       {evidence.length > 0 && (
-        <div style={{ marginBottom: 36 }}>
-          <SectionHeader title="Evidence" subtitle="Data confirming the root cause" />
+        <div style={{ marginBottom: 32 }}>
+          <SectionHeader title="Supporting Evidence & Data" subtitle="Specific file changes and version logs proving this root cause" />
           <EvidenceBlocks items={evidence} />
         </div>
       )}
 
       {/* Ranked causes */}
       {rootCauses.length > 0 && (
-        <div style={{ marginBottom: 36 }}>
+        <div style={{ marginBottom: 32 }}>
           <SectionHeader
-            title="Ranked root causes"
-            subtitle={`Top ${rootCauses.length} factors by confidence`}
+            title="Ranked Potential Root Causes"
+            subtitle={`Top ${rootCauses.length} candidate causes weighted by evidence`}
           />
-          {rootCauses.map((c, i) => (
-            <div key={c.rank} style={{
-              display: "flex", alignItems: "center", gap: 16, padding: "14px 0",
-              borderBottom: i < rootCauses.length - 1 ? "1px solid #EBF2F2" : "none",
-            }}>
-              <span style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 11, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", minWidth: 24 }}>
-                #{c.rank}
-              </span>
-              <div style={{ flex: 1, fontSize: 13, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", lineHeight: 1.5 }}>{c.reason}</div>
-              <div style={{ flexShrink: 0, textAlign: "right" }}>
-                <ScoreBar value={c.score} />
-                <div style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 12, fontWeight: 600, color: scoreColor(c.score), marginTop: 3 }}>
-                  {Math.round(c.score * 100)}%
+          <div className="glass-card" style={{ padding: "16px 24px" }}>
+            {rootCauses.map((c, i) => (
+              <div key={c.rank} style={{
+                display: "flex", alignItems: "center", gap: 16, padding: "12px 0",
+                borderBottom: i < rootCauses.length - 1 ? "1px solid rgba(0,0,0,0.06)" : "none",
+              }}>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 800, color: "#34C1C1", minWidth: 28 }}>
+                  #{c.rank}
+                </span>
+                <div style={{ flex: 1, fontSize: 13, color: "#1C2222", fontWeight: 600, lineHeight: 1.4 }}>{c.reason}</div>
+                <div style={{ flexShrink: 0, textAlign: "right" }}>
+                  <ScoreBar value={c.score} />
+                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: scoreColor(c.score), marginTop: 3 }}>
+                    {Math.round(c.score * 100)}% Probability
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Live: contributing factors per cause */}
-      {mode === "live" && liveData?.root_causes && (
-        <div style={{ marginBottom: 36 }}>
-          <SectionHeader title="Contributing factors" subtitle="Per root cause" />
-          {liveData.root_causes.map(c => (
-            <div key={c.rank} style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 11, color: "var(--skeuo-text-inset-color)", marginBottom: 6 }}>
-                Rank #{c.rank} — {c.reason.slice(0, 80)}{c.reason.length > 80 ? "…" : ""}
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {Object.entries(c.contributing_factors).map(([k, v]) => (
-                  <span key={k} style={{
-                    fontFamily: "var(--font-mono-jb), monospace", fontSize: 10,
-                    padding: "2px 8px", borderRadius: 3,
-                    background: "var(--skeuo-bg)", boxShadow: "inset 6px 6px 10px 0 var(--skeuo-shadow-dark-strong), inset -6px -6px 10px 0 var(--skeuo-shadow-light)", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)",
-                  }}>
-                    {k}: {(v * 100).toFixed(0)}%
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
       {/* Affected components */}
       {affectedComponents.length > 0 && (
-        <div style={{ marginBottom: 36 }}>
-          <SectionHeader title="Affected components" subtitle="" />
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        <div style={{ marginBottom: 32 }}>
+          <SectionHeader title="Affected System Components" subtitle="Files and services impacted by this issue" />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {affectedComponents.map(c => (
-              <span key={c} style={{ padding: "3px 10px", background: "var(--skeuo-bg)", boxShadow: "inset 6px 6px 10px 0 var(--skeuo-shadow-dark-strong), inset -6px -6px 10px 0 var(--skeuo-shadow-light)", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 4, fontFamily: "var(--font-mono-jb), monospace", fontSize: 11, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)" }}>
+              <span key={c} style={{ padding: "6px 14px", background: "#fff", boxShadow: "var(--shadow-neo-sm)", borderRadius: 6, fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 600, color: "#1C2222" }}>
                 {c}
               </span>
             ))}
@@ -301,12 +252,17 @@ function DiagnosisLayout({
         </div>
       )}
 
-      {/* Next step */}
-      <div style={{ padding: "18px 22px", background: "rgba(52,193,193,0.05)", border: "1px solid rgba(52,193,193,0.2)", borderRadius: 6 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#34C1C1", marginBottom: 8, fontFamily: "var(--font-mono-jb), monospace" }}>
-          {mode === "live" ? "Diagnosis ID — use in Verify and Regression Guard" : "Recommended next step"}
+      {/* Next step recommendation */}
+      <div style={{
+        padding: "20px 24px",
+        background: "rgba(52, 193, 193, 0.08)",
+        border: "1px solid rgba(52, 193, 193, 0.25)",
+        borderRadius: "var(--radius-sm)",
+      }}>
+        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#007777", marginBottom: 6, fontFamily: "var(--font-mono)" }}>
+          💡 Recommended Action
         </div>
-        <p style={{ fontSize: 13, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", lineHeight: 1.6, fontFamily: mode === "live" ? "var(--font-mono-jb), monospace" : undefined }}>
+        <p style={{ fontSize: 13, color: "#1C2222", lineHeight: 1.6, fontWeight: 600 }}>
           {nextStep}
         </p>
       </div>
@@ -318,26 +274,10 @@ function DiagnosisLayout({
 
 function SectionHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
-    <div style={{ marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid var(--skeuo-header-border)" }}>
-      <span style={{ fontSize: 13, fontWeight: 600, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)" }}>{title}</span>
-      {subtitle && <span style={{ fontSize: 12, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginLeft: 10 }}>{subtitle}</span>}
+    <div style={{ marginBottom: 16, paddingBottom: 10, borderBottom: "1px solid rgba(0,0,0,0.08)", display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+      <span style={{ fontSize: 15, fontWeight: 700, color: "#1C2222" }}>{title}</span>
+      {subtitle && <span style={{ fontSize: 12, color: "#718484" }}>{subtitle}</span>}
     </div>
-  )
-}
-
-function StatusPill({ status }: { status: string }) {
-  const ok = status === "completed"
-  return (
-    <span style={{
-      display: "inline-flex", alignItems: "center", gap: 5, padding: "2px 8px",
-      borderRadius: 4, fontSize: 11, fontWeight: 600,
-      background: ok ? "rgba(43,171,96,0.08)" : "rgba(236,156,19,0.08)",
-      border: `1px solid ${ok ? "rgba(43,171,96,0.2)" : "rgba(236,156,19,0.22)"}`,
-      color: ok ? "#2BAB60" : "#b87100",
-    }}>
-      <span style={{ width: 5, height: 5, borderRadius: "50%", background: ok ? "#2BAB60" : "#EC9C13", display: "inline-block" }} />
-      {status}
-    </span>
   )
 }
 
@@ -347,30 +287,45 @@ function scoreColor(score: number) {
 
 function ScoreBar({ value }: { value: number }) {
   return (
-    <div style={{ width: 80, height: 4, background: "#EBF2F2", borderRadius: 2, overflow: "hidden" }}>
-      <div style={{ height: 4, width: `${Math.round(value * 100)}%`, background: scoreColor(value), borderRadius: 2 }} />
+    <div style={{ width: 80, height: 6, background: "rgba(0,0,0,0.08)", borderRadius: 3, overflow: "hidden" }}>
+      <div style={{ height: 6, width: `${Math.round(value * 100)}%`, background: scoreColor(value), borderRadius: 3 }} />
     </div>
   )
 }
 
 function ConfidenceRing({ value }: { value: number }) {
-  const r      = 36
+  const r      = 38
   const stroke = 5
   const norm   = r - stroke / 2
   const circ   = 2 * Math.PI * norm
   const filled = (value / 100) * circ
-  const color  = value >= 80 ? "#DB2424" : value >= 50 ? "#EC9C13" : "#9AABAB"
+  const color  = value >= 80 ? "#DB2424" : value >= 50 ? "#EC9C13" : "#34C1C1"
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, background: "#fff", padding: "14px 20px", borderRadius: 12, boxShadow: "var(--shadow-neo-sm)", flexShrink: 0 }}>
       <svg width={r * 2} height={r * 2} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={r} cy={r} r={norm} fill="none" stroke="#EBF2F2" strokeWidth={stroke} />
+        <circle cx={r} cy={r} r={norm} fill="none" stroke="#e0e5ec" strokeWidth={stroke} />
         <circle cx={r} cy={r} r={norm} fill="none" stroke={color} strokeWidth={stroke}
           strokeDasharray={`${filled} ${circ - filled}`} strokeLinecap="round" />
       </svg>
-      <div style={{ textAlign: "center", marginTop: -4 }}>
-        <div style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 20, fontWeight: 700, color }}>{value}%</div>
-        <div style={{ fontSize: 10, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)" }}>confidence</div>
+      <div style={{ textAlign: "center", marginTop: -6 }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 20, fontWeight: 800, color }}>{value}%</div>
+        <div style={{ fontSize: 10, color: "#718484", fontWeight: 700, textTransform: "capitalize" }}>Confidence</div>
       </div>
     </div>
+  )
+}
+
+function ModeBadge({ mode }: { mode: "demo" | "live" }) {
+  if (mode === "demo") {
+    return (
+      <span className="badge badge-primary">
+        Interactive Demo
+      </span>
+    )
+  }
+  return (
+    <span className="badge badge-success">
+      Live Session
+    </span>
   )
 }
