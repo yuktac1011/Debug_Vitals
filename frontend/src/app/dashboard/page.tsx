@@ -13,6 +13,9 @@ const SEVERITY_COLORS: Record<string, string> = {
 export default function Dashboard() {
   const [data, setData] = useState<any>(null)
   const [ciRuns, setCiRuns] = useState<any[]>([])
+  const [depsHistory, setDepsHistory] = useState<any[]>([])
+  const [activity, setActivity] = useState<any[]>([])
+  const [decisions, setDecisions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -21,19 +24,24 @@ export default function Dashboard() {
   
   const [selectedFindingId, setSelectedFindingId] = useState<string | null>(null)
   const [selectedCiRunId, setSelectedCiRunId] = useState<string | null>(null)
+  const [selectedCiRunCorrelation, setSelectedCiRunCorrelation] = useState<any>(null)
 
   const fetchData = async () => {
     try {
-      const [res, ciRes] = await Promise.all([
+      const [res, ciRes, depsRes, actRes, decRes] = await Promise.all([
         fetch('/api/agentdoctor'),
-        fetch('/api/ci')
+        fetch('/api/ci'),
+        fetch('/api/dependencies'),
+        fetch('/api/agent/activity'),
+        fetch('/api/agent/decisions')
       ])
       if (!res.ok) throw new Error('Failed to load data')
       const json = await res.json()
       setData(json)
-      if (ciRes.ok) {
-        setCiRuns(await ciRes.json())
-      }
+      if (ciRes.ok) setCiRuns(await ciRes.json())
+      if (depsRes.ok) setDepsHistory(await depsRes.json())
+      if (actRes.ok) setActivity(await actRes.json())
+      if (decRes.ok) setDecisions(await decRes.json())
       setError(null)
     } catch (err: any) {
       setError(err.message)
@@ -42,11 +50,27 @@ export default function Dashboard() {
     }
   }
 
+  const fetchCorrelation = async (id: string) => {
+    try {
+      const res = await fetch(`/api/correlation/${id}`)
+      if (res.ok) setSelectedCiRunCorrelation(await res.json())
+    } catch (e) {}
+  }
+
   useEffect(() => {
     fetchData()
     const interval = setInterval(fetchData, 2000)
     return () => clearInterval(interval)
   }, [])
+
+  const handleDecision = async (id: string, action: string) => {
+    try {
+      await fetch(`/api/agent/decisions/${id}/${action}`, { method: 'POST' })
+      fetchData()
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   const handleAction = async (id: string, action: string) => {
     try {
@@ -218,7 +242,7 @@ export default function Dashboard() {
                     {ciRuns.map((r: any) => (
                       <tr 
                         key={r.id} 
-                        onClick={() => { setSelectedCiRunId(r.id); setSelectedFindingId(null); }}
+                        onClick={() => { setSelectedCiRunId(r.id); setSelectedFindingId(null); fetchCorrelation(r.id); }}
                         style={{ 
                           borderBottom: "1px solid #D8E4E4", 
                           cursor: 'pointer',
@@ -241,6 +265,103 @@ export default function Dashboard() {
                     ))}
                   </tbody>
                 </table>
+              )}
+            </div>
+          {/* Dependencies */}
+          <div style={{ marginTop: 32 }}>
+            <h2 style={{ fontSize: 16, color: "#1C2222", marginBottom: 16 }}>Dependencies</h2>
+            <div style={{ background: "var(--color-surface)", borderRadius: 8, border: "1px solid #D8E4E4", padding: 24, display: "flex", gap: 32 }}>
+              {depsHistory.length === 0 ? (
+                <div style={{ color: "#718484" }}>No dependency snapshots recorded.</div>
+              ) : (
+                <>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontSize: 14, fontWeight: 600, color: "#1C2222", marginBottom: 12 }}>Package Manager</h3>
+                    <div style={{ fontSize: 14, color: "#718484" }}>{depsHistory[0].packageManager || "unknown"}</div>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontSize: 14, fontWeight: 600, color: "#1C2222", marginBottom: 12 }}>Lockfile</h3>
+                    <div style={{ fontSize: 14, color: "#718484" }}>
+                      {depsHistory[0].lockfileMissing ? <span style={{ color: "#EC9C13" }}>Missing</span> : <span style={{ color: "#34C1C1" }}>✓ Present</span>}
+                      {depsHistory[0].lockfileHash && <div style={{ fontSize: 12, fontFamily: 'monospace', marginTop: 4 }}>SHA: {depsHistory[0].lockfileHash.substring(0, 8)}...</div>}
+                    </div>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontSize: 14, fontWeight: 600, color: "#1C2222", marginBottom: 12 }}>Dependencies</h3>
+                    <div style={{ fontSize: 14, color: "#718484" }}>
+                      Direct: {Object.keys(depsHistory[0].directDependencies || {}).length}<br />
+                      Resolved: {Object.keys(depsHistory[0].resolvedDependencies || {}).length}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Agent Activity */}
+          <div style={{ marginTop: 32 }}>
+            <h2 style={{ fontSize: 16, color: "#1C2222", marginBottom: 16 }}>Agent Activity</h2>
+            <div style={{ background: "var(--color-surface)", borderRadius: 8, border: "1px solid #D8E4E4", padding: 24 }}>
+              {activity.length === 0 ? (
+                <div style={{ color: "#718484" }}>No agent activity observed.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {activity.slice(0, 5).map((act: any) => (
+                    <div key={act.id} style={{ borderLeft: "2px solid #D8E4E4", paddingLeft: 16 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: "#1C2222" }}>{act.action}</span>
+                        <span style={{ fontSize: 12, color: "#718484" }}>{new Date(act.timestamp).toLocaleTimeString()}</span>
+                      </div>
+                      <div style={{ fontSize: 13, color: "#546666", fontFamily: 'monospace' }}>{act.resource}</div>
+                      {act.riskSignals?.length > 0 && (
+                        <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+                          {act.riskSignals.map((sig: string) => (
+                            <span key={sig} style={{ background: "#DB242415", color: "#DB2424", fontSize: 11, padding: "2px 6px", borderRadius: 4, fontWeight: 600 }}>
+                              {sig}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Trust / Permissions */}
+          <div style={{ marginTop: 32 }}>
+            <h2 style={{ fontSize: 16, color: "#1C2222", marginBottom: 16 }}>Trust / Permissions</h2>
+            <div style={{ background: "var(--color-surface)", borderRadius: 8, border: "1px solid #D8E4E4", padding: 24 }}>
+              {decisions.length === 0 ? (
+                <div style={{ color: "#718484" }}>No permissions requested yet.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {decisions.slice(0, 5).map((dec: any) => (
+                    <div key={dec.id} style={{ borderLeft: `3px solid ${dec.decision === 'ALLOW' || dec.status === 'APPROVED' ? '#34C1C1' : dec.status === 'REJECTED' || dec.decision === 'BLOCK' ? '#DB2424' : '#EC9C13'}`, paddingLeft: 16 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: "#1C2222" }}>{dec.action}</span>
+                        <span style={{ fontSize: 12, color: "#718484" }}>{new Date(dec.timestamp).toLocaleTimeString()}</span>
+                      </div>
+                      <div style={{ fontSize: 13, color: "#546666", fontFamily: 'monospace' }}>{dec.resource}</div>
+                      <div style={{ fontSize: 12, color: "#718484", marginTop: 4 }}>
+                        <strong>Policy:</strong> {dec.policyName || 'Default'} <br/>
+                        <strong>Reason:</strong> {dec.reason}
+                      </div>
+                      {dec.decision === 'REQUIRE_APPROVAL' && dec.status === 'PENDING' && (
+                        <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                          <button onClick={() => handleDecision(dec.id, 'approve')} style={{ background: "#34C1C1", color: "white", border: "none", padding: "6px 16px", borderRadius: 4, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>Approve</button>
+                          <button onClick={() => handleDecision(dec.id, 'reject')} style={{ background: "transparent", color: "#DB2424", border: "1px solid #DB2424", padding: "6px 16px", borderRadius: 4, cursor: "pointer", fontSize: 12, fontWeight: 600 }}>Reject</button>
+                        </div>
+                      )}
+                      {dec.status !== 'PENDING' && (
+                        <div style={{ marginTop: 8, fontSize: 12, fontWeight: 600, color: dec.status === 'APPROVED' ? '#34C1C1' : dec.decision === 'ALLOW' ? '#34C1C1' : '#DB2424' }}>
+                          Status: {dec.status} ({dec.decision})
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
@@ -341,6 +462,55 @@ export default function Dashboard() {
                   ))}
                 </div>
               ))}
+
+              {selectedCiRunCorrelation && (
+                <div style={{ marginTop: 32, borderTop: "1px solid #D8E4E4", paddingTop: 24 }}>
+                  <h3 style={{ fontSize: 16, color: "#1C2222", marginBottom: 16 }}>WHY DID THIS HAPPEN?</h3>
+                  
+                  {selectedCiRunCorrelation.candidates?.length > 0 ? (
+                    selectedCiRunCorrelation.candidates.map((cand: any, idx: number) => (
+                      <div key={idx} style={{ marginBottom: 24 }}>
+                        <h4 style={{ fontSize: 14, fontWeight: 600, color: "#DB2424", marginBottom: 8 }}>Likely contributing factor</h4>
+                        <div style={{ fontSize: 14, color: "#1C2222", marginBottom: 12 }}>{cand.title}</div>
+                        
+                        <h5 style={{ fontSize: 12, color: "#718484", marginBottom: 4, textTransform: 'uppercase' }}>Evidence</h5>
+                        <ul style={{ margin: 0, paddingLeft: 20, fontSize: 13, color: "#546666", marginBottom: 12 }}>
+                          {cand.evidence.map((ev: string, i: number) => <li key={i}>{ev}</li>)}
+                        </ul>
+
+                        <h5 style={{ fontSize: 12, color: "#718484", marginBottom: 4, textTransform: 'uppercase' }}>Confidence</h5>
+                        <div style={{ fontSize: 13, color: "#1C2222", marginBottom: 12 }}>{Math.round(cand.confidence * 100)}%</div>
+
+                        <h5 style={{ fontSize: 12, color: "#718484", marginBottom: 4, textTransform: 'uppercase' }}>What to check</h5>
+                        <div style={{ fontSize: 13, color: "#1C2222" }}>{cand.recommendation}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div style={{ fontSize: 13, color: "#718484" }}>No root cause candidates found. Status: {selectedCiRunCorrelation.status}</div>
+                  )}
+
+                  {selectedCiRunCorrelation.timeline?.length > 0 && (
+                    <div style={{ marginTop: 24 }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 600, color: "#1C2222", marginBottom: 12 }}>Incident Timeline</h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {selectedCiRunCorrelation.timeline.map((evt: any, i: number) => (
+                          <div key={i} style={{ display: 'flex', gap: 12 }}>
+                            <div style={{ width: 60, fontSize: 11, color: "#718484", paddingTop: 2 }}>
+                              {new Date(evt.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                            <div style={{ flex: 1, borderLeft: "2px solid #D8E4E4", paddingLeft: 12 }}>
+                              <div style={{ fontSize: 13, color: evt.type === 'CI_FAILURE' ? "#DB2424" : "#1C2222", fontWeight: 500 }}>
+                                {evt.message}
+                              </div>
+                              {evt.details && <div style={{ fontSize: 12, color: "#718484", marginTop: 2 }}>{evt.details}</div>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             <div style={{ background: "var(--color-surface)", borderRadius: 8, border: "1px solid #D8E4E4", padding: 48, textAlign: 'center', color: "#9AABAB" }}>

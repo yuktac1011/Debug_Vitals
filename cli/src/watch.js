@@ -62,6 +62,7 @@ const { buildContext } = require('./contextBuilder');
 const { MockAIProvider } = require('./ai/provider');
 const { AIAnalysisEngine } = require('./ai/engine');
 const { FindingEngine } = require('./ai/findingEngine');
+const { ActivityMonitor } = require('./activity');
 
 const aiProvider = new MockAIProvider();
 const aiEngine = new AIAnalysisEngine(aiProvider);
@@ -311,6 +312,8 @@ function watchCommand() {
     }
   }
 
+  const activityMonitor = new ActivityMonitor(cwd);
+
   try {
     fs.watch(cwd, { recursive: true }, (eventType, filename) => {
       // 2. Ignore irrelevant files
@@ -326,6 +329,13 @@ function watchCommand() {
         mappedEvent = 'unlink';
       } else if (eventType === 'rename') {
         mappedEvent = 'add';
+      }
+
+      // Record Activity
+      if (mappedEvent === 'add' || mappedEvent === 'change') {
+        activityMonitor.recordEvent({ action: 'FILE_WRITE', resource: normalizedPath, source: 'fs.watch' });
+      } else if (mappedEvent === 'unlink') {
+        activityMonitor.recordEvent({ action: 'FILE_DELETE', resource: normalizedPath, source: 'fs.watch' });
       }
       
       pendingEvents.set(normalizedPath, mappedEvent);

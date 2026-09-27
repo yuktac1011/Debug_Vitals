@@ -14,6 +14,8 @@ function showHelp() {
   console.log('  init       Initialize AgentDoctor in the current repository');
   console.log('  watch      Monitor the repository for meaningful events');
   console.log('  ci         Ingest CI runs and failures');
+  console.log('  snapshot   Create and compare environment snapshots');
+  console.log('  deps       Manage dependency snapshots');
   console.log('\nOptions:');
   console.log('  --help     Show this help message');
   console.log('  --version  Show version number');
@@ -51,6 +53,12 @@ function main() {
       break;
     case 'ci':
       ciCommand(args.slice(1));
+      break;
+    case 'snapshot':
+      require('./snapshotCmd')(args.slice(1));
+      break;
+    case 'deps':
+      require('./depsCmd')(args.slice(1));
       break;
     case '--help':
     case '-h':
