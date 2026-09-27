@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Inter, JetBrains_Mono } from "next/font/google"
+import BackgroundIcons from "@/components/shared/BackgroundIcons"
 import "./globals.css"
 
 const inter = Inter({
@@ -25,7 +26,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body>{children}</body>
+      <body style={{ position: "relative", minHeight: "100dvh" }}>
+        <BackgroundIcons />
+        <div style={{ position: "relative", zIndex: 1 }}>
+          {children}
+        </div>
+      </body>
     </html>
   )
 }

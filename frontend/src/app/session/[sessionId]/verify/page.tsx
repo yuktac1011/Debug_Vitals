@@ -4,7 +4,6 @@ import { use, useState } from "react"
 import { useSession } from "@/lib/useSession"
 import type { VerifyRequest, VerificationResponse } from "@/lib/api"
 
-// Docker images that match the backend allowlist
 const DOCKER_IMAGES = [
   "python:3.11-slim",
   "python:3.10-slim",
@@ -20,21 +19,21 @@ function DemoView({ scenario }: { scenario: ReturnType<typeof import("@/lib/useS
   return (
     <>
       {/* Hypothesis */}
-      <div style={{ padding: "18px 22px", background: "var(--skeuo-bg)", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 6, marginBottom: 32 }} className="skeuo-panel">
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#4B85BE", marginBottom: 8, fontFamily: "var(--font-mono-jb), monospace" }}>
-          Hypothesis
+      <div className="glass-card" style={{ padding: "20px 24px", marginBottom: 28 }}>
+        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#4B85BE", marginBottom: 6, fontFamily: "var(--font-mono)" }}>
+          Tested Diagnostic Hypothesis
         </div>
-        <p style={{ fontSize: 14, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", fontStyle: "italic", lineHeight: 1.6 }}>
+        <p style={{ fontSize: 15, color: "#1C2222", fontStyle: "italic", lineHeight: 1.6, fontWeight: 600 }}>
           &ldquo;{scenario.hypothesis}&rdquo;
         </p>
       </div>
 
       {/* Control vs Experiment */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 32 }}>
-        <CompactCard color="#DB2424" label="Control" title={scenario.control.label} result={scenario.control.result} status="fail" />
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, marginBottom: 28 }}>
+        <CompactCard color="#DB2424" label="Control Run (Default Env)" title={scenario.control.label} result={scenario.control.result} status="fail" />
         <CompactCard
           color={scenario.experiment.status === "ok" ? "#2BAB60" : "#EC9C13"}
-          label="Experiment"
+          label="Experiment Run (Fixed Env Sandbox)"
           title={scenario.experiment.label}
           result={scenario.experiment.result}
           status={scenario.experiment.status as "ok" | "fail" | "running"}
@@ -43,12 +42,16 @@ function DemoView({ scenario }: { scenario: ReturnType<typeof import("@/lib/useS
 
       {/* Result */}
       {scenario.verified && (
-        <div style={{ padding: "20px 24px", background: "rgba(43,171,96,0.05)", border: "1px solid rgba(43,171,96,0.2)", borderRadius: 6, marginBottom: 32 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#2BAB60", marginBottom: 10, fontFamily: "var(--font-mono-jb), monospace" }}>
-            Result
+        <div style={{ padding: "22px 26px", background: "rgba(43,171,96,0.08)", border: "1px solid rgba(43,171,96,0.3)", borderRadius: "var(--radius-sm)", marginBottom: 28 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#1e7d44", marginBottom: 6, fontFamily: "var(--font-mono)" }}>
+            ✅ Hypothesis Empirically Confirmed
           </div>
-          <div style={{ fontSize: 13, fontWeight: 500, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", marginBottom: 4 }}>Hypothesis confirmed.</div>
-          <div style={{ fontSize: 12, color: "var(--skeuo-text-inset-color)" }}>Experiment passed with 0 failures. Root cause is verified.</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#1C2222", marginBottom: 4 }}>
+            Verification Container Passed
+          </div>
+          <div style={{ fontSize: 13, color: "#636e72" }}>
+            Running tests inside the isolated sandbox container returned 0 errors, confirming that the diagnosed environment shift solves the issue.
+          </div>
         </div>
       )}
     </>
@@ -89,47 +92,47 @@ function LiveForm({
   return (
     <div>
       {/* Form */}
-      <form onSubmit={handleSubmit}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
+      <form onSubmit={handleSubmit} className="glass-card" style={{ padding: "24px 28px", marginBottom: 28 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 18, marginBottom: 24 }}>
 
-          {/* Diagnosis ID (optional, auto-filled if available) */}
-          <FieldRow label="Diagnosis ID" hint="Optional — links this run to a diagnosis">
+          {/* Diagnosis ID */}
+          <FieldRow label="Diagnosis Reference ID" hint="Links container rerun to confidence score">
             <input
               value={diagId}
               onChange={(e) => setDiagId(e.target.value)}
-              placeholder="Leave blank to run without a linked diagnosis"
+              placeholder="Leave blank to run standalone container test"
               style={inputStyle}
             />
           </FieldRow>
 
           {/* Docker image */}
-          <FieldRow label="Docker image" hint="Container to run the test in">
+          <FieldRow label="Sandbox Docker Image" hint="Target environment container">
             <select value={image} onChange={(e) => setImage(e.target.value)} style={inputStyle}>
               {DOCKER_IMAGES.map((img) => <option key={img} value={img}>{img}</option>)}
             </select>
           </FieldRow>
 
           {/* Command */}
-          <FieldRow label="Command" hint="Test command to run inside the container">
+          <FieldRow label="Test Execution Command" hint="Command executed inside container">
             <input
               value={command}
               onChange={(e) => setCommand(e.target.value)}
               placeholder="pytest -x"
               required
-              style={{ ...inputStyle, fontFamily: "var(--font-mono-jb), monospace" }}
+              style={{ ...inputStyle, fontFamily: "var(--font-mono)" }}
             />
           </FieldRow>
 
         </div>
 
         {error && (
-          <div style={{ padding: "10px 14px", background: "rgba(219,36,36,0.06)", border: "1px solid rgba(219,36,36,0.2)", borderRadius: 4, color: "#DB2424", fontSize: 12, marginBottom: 16 }}>
+          <div style={{ padding: "12px 16px", background: "rgba(219,36,36,0.08)", border: "1px solid rgba(219,36,36,0.3)", borderRadius: 6, color: "#DB2424", fontSize: 13, fontWeight: 600, marginBottom: 18 }}>
             {error}
           </div>
         )}
 
-        <button type="submit" className="btn btn-primary" disabled={loading} style={{ opacity: loading ? 0.6 : 1 }}>
-          {loading ? "Running…" : "Run verification"}
+        <button type="submit" className="btn btn-primary" disabled={loading}>
+          {loading ? "Spawning Sandbox & Executing Rerun…" : "Execute Isolated Sandbox Rerun"}
         </button>
       </form>
 
@@ -137,13 +140,12 @@ function LiveForm({
       {result && <VerifyResult result={result} />}
 
       {/* Method note */}
-      <div style={{ borderTop: "1px solid var(--skeuo-border)", paddingTop: 20, marginTop: 32 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 10, fontFamily: "var(--font-mono-jb), monospace" }}>
-          Method
+      <div style={{ borderTop: "1px solid rgba(0,0,0,0.08)", paddingTop: 20, marginTop: 32 }}>
+        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#9AABAB", marginBottom: 6, fontFamily: "var(--font-mono)" }}>
+          Verification Mechanics
         </div>
-        <p style={{ fontSize: 12, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", lineHeight: 1.65 }}>
-          The backend runs your command inside the specified Docker container. A zero exit code confirms the environment is healthy.
-          Link a diagnosis ID to have the confidence score updated automatically.
+        <p style={{ fontSize: 13, color: "#636e72", lineHeight: 1.65 }}>
+          The backend spins up an isolated Docker container with zero network access, executes your command, and records stdout/stderr. A exit code of 0 confirms your fix hypothesis.
         </p>
       </div>
     </div>
@@ -152,29 +154,28 @@ function LiveForm({
 
 function VerifyResult({ result }: { result: VerificationResponse }) {
   const ok = result.exit_code === 0
-  const statusColor = ok ? "#2BAB60" : result.status === "pending" ? "#EC9C13" : "#DB2424"
 
   return (
-    <div style={{ marginTop: 28 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: statusColor, fontFamily: "var(--font-mono-jb), monospace" }}>
-          Result
+    <div className="glass-card" style={{ padding: "24px 28px", marginTop: 28 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: ok ? "#2BAB60" : "#DB2424", fontFamily: "var(--font-mono)" }}>
+          Sandbox Execution Result
         </span>
         <StatusBadge status={result.status} exitCode={result.exit_code} />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginBottom: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 12, marginBottom: 20 }}>
         <MetaCell label="Status"     value={result.status} />
-        <MetaCell label="Exit code"  value={result.exit_code !== undefined ? String(result.exit_code) : "—"} />
-        <MetaCell label="Image"      value={result.docker_image ?? "—"} />
+        <MetaCell label="Exit Code"  value={result.exit_code !== undefined ? String(result.exit_code) : "—"} />
+        <MetaCell label="Docker Image" value={result.docker_image ?? "—"} />
         <MetaCell label="Command"    value={result.command ?? "—"} mono />
       </div>
 
       {result.stdout && (
-        <OutputBlock label="stdout" content={result.stdout} />
+        <OutputBlock label="Container stdout Log" content={result.stdout} />
       )}
       {result.stderr && (
-        <OutputBlock label="stderr" content={result.stderr} color="#DB2424" />
+        <OutputBlock label="Container stderr Error Log" content={result.stderr} color="#DB2424" />
       )}
     </div>
   )
@@ -186,17 +187,17 @@ function CompactCard({ color, label, title, result, status }: {
   color: string; label: string; title: string; result: string; status: "ok" | "fail" | "running"
 }) {
   const cfg = {
-    ok:      { bg: "rgba(43,171,96,0.07)",  border: "rgba(43,171,96,0.2)",  color: "#2BAB60", text: "Passed" },
-    fail:    { bg: "rgba(219,36,36,0.07)",  border: "rgba(219,36,36,0.2)",  color: "#DB2424", text: "Failed" },
-    running: { bg: "rgba(236,156,19,0.07)", border: "rgba(236,156,19,0.22)", color: "#b87100", text: "Running" },
+    ok:      { badge: "badge-success", dot: "dot-ok", text: "Passed (0 Errors)" },
+    fail:    { badge: "badge-error",   dot: "dot-error", text: "Failed (Mismatch)" },
+    running: { badge: "badge-warning", dot: "dot-warn", text: "Container Running" },
   }[status]
   return (
-    <div style={{ padding: "20px 22px", background: "var(--skeuo-bg)", border: `1px solid rgba(0,0,0,0.08)`, borderTop: `3px solid ${color}`, borderRadius: 6 }} className="skeuo-panel">
-      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color, marginBottom: 12, fontFamily: "var(--font-mono-jb), monospace" }}>{label}</div>
-      <div style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 13, fontWeight: 600, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", marginBottom: 10 }}>{title}</div>
-      <div style={{ fontSize: 12, color: "var(--skeuo-text-inset-color)", marginBottom: 12, lineHeight: 1.5 }}>{result}</div>
-      <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 4, fontSize: 11, fontWeight: 600, background: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}>
-        <span style={{ width: 5, height: 5, borderRadius: "50%", background: cfg.color, display: "inline-block" }} />
+    <div className="glass-card" style={{ padding: "22px 24px", borderTop: `4px solid ${color}` }}>
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color, marginBottom: 10, fontFamily: "var(--font-mono)" }}>{label}</div>
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 14, fontWeight: 700, color: "#1C2222", marginBottom: 8 }}>{title}</div>
+      <div style={{ fontSize: 13, color: "#636e72", marginBottom: 14, lineHeight: 1.5 }}>{result}</div>
+      <span className={`badge ${cfg.badge}`}>
+        <span className={`dot ${cfg.dot}`} />
         {cfg.text}
       </span>
     </div>
@@ -206,9 +207,9 @@ function CompactCard({ color, label, title, result, status }: {
 function FieldRow({ label, hint, children }: { label: string; hint: string; children: React.ReactNode }) {
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-        <label style={{ fontSize: 12, fontWeight: 600, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)" }}>{label}</label>
-        <span style={{ fontSize: 11, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)" }}>{hint}</span>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+        <label style={{ fontSize: 13, fontWeight: 700, color: "#1C2222" }}>{label}</label>
+        <span style={{ fontSize: 12, color: "#718484" }}>{hint}</span>
       </div>
       {children}
     </div>
@@ -216,42 +217,55 @@ function FieldRow({ label, hint, children }: { label: string; hint: string; chil
 }
 
 function StatusBadge({ status, exitCode }: { status: string; exitCode?: number }) {
-  const ok    = exitCode === 0
-  const color = ok ? "#2BAB60" : status === "pending" ? "#b87100" : "#DB2424"
-  const bg    = ok ? "rgba(43,171,96,0.07)" : status === "pending" ? "rgba(236,156,19,0.07)" : "rgba(219,36,36,0.07)"
+  const ok = exitCode === 0
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 10px", borderRadius: 4, fontSize: 11, fontWeight: 600, background: bg, color, border: `1px solid ${color}22` }}>
-      <span style={{ width: 5, height: 5, borderRadius: "50%", background: color, display: "inline-block" }} />
-      {status}
+    <span className={`badge ${ok ? "badge-success" : "badge-error"}`}>
+      <span className={`dot ${ok ? "dot-ok" : "dot-error"}`} />
+      {status.toUpperCase()}
     </span>
   )
 }
 
 function MetaCell({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
-    <div style={{ padding: "10px 12px", background: "var(--skeuo-bg)", border: "1px solid #EBF2F2", borderRadius: 4 }}>
-      <div style={{ fontSize: 10, color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 3 }}>{label}</div>
-      <div style={{ fontSize: 12, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", fontFamily: mono ? "var(--font-mono-jb), monospace" : undefined, wordBreak: "break-all" }}>{value}</div>
+    <div style={{ padding: "10px 12px", background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.06)", borderRadius: 6 }}>
+      <div style={{ fontSize: 10, color: "#718484", marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 13, color: "#1C2222", fontWeight: 600, fontFamily: mono ? "var(--font-mono)" : undefined, wordBreak: "break-all" }}>{value}</div>
     </div>
   )
 }
 
-function OutputBlock({ label, content, color = "#1C2222" }: { label: string; content: string; color?: string }) {
+function OutputBlock({ label, content, color }: { label: string; content: string; color?: string }) {
   return (
-    <div style={{ marginBottom: 12 }}>
-      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 6, fontFamily: "var(--font-mono-jb), monospace" }}>{label}</div>
-      <pre style={{ fontFamily: "var(--font-mono-jb), monospace", fontSize: 11, lineHeight: 1.7, color, background: "var(--skeuo-bg)", boxShadow: "inset 6px 6px 10px 0 var(--skeuo-shadow-dark-strong), inset -6px -6px 10px 0 var(--skeuo-shadow-light)", border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 4, padding: "10px 12px", overflow: "auto", whiteSpace: "pre-wrap", maxHeight: 220 }}>
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", textTransform: "uppercase", color: "#718484", marginBottom: 6, fontFamily: "var(--font-mono)" }}>{label}</div>
+      <pre className="code-block" style={{ color: color ?? "#e2e8f0", maxHeight: 220, margin: 0 }}>
         {content}
       </pre>
     </div>
   )
 }
 
+function ModeBadge({ mode }: { mode: "demo" | "live" }) {
+  if (mode === "demo") {
+    return (
+      <span className="badge badge-primary">
+        Interactive Demo
+      </span>
+    )
+  }
+  return (
+    <span className="badge badge-success">
+      Live Session
+    </span>
+  )
+}
+
 const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "8px 10px", fontSize: 13,
-  border: "1px solid var(--skeuo-border)", boxShadow: "9px 9px 16px var(--skeuo-shadow-dark), -9px -9px 16px var(--skeuo-shadow-light-strong)", borderRadius: 4,
-  background: "var(--skeuo-bg)", color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)",
-  boxSizing: "border-box",
+  width: "100%", padding: "10px 14px", fontSize: 13,
+  border: "1px solid #c4c9cf", borderRadius: 6,
+  background: "#fff", color: "#1C2222",
+  boxSizing: "border-box", outline: "none",
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -259,26 +273,30 @@ const inputStyle: React.CSSProperties = {
 export default function VerifyPage({ params }: { params: Promise<{ sessionId: string }> }) {
   const { sessionId } = use(params)
   const sess          = useSession(sessionId)
-
-  // Pull diagnosis ID from live state if available (set after step 02)
-  const diagnosisId = sess.mode === "live" ? sess.diagnosis?.id : undefined
+  const diagnosisId   = sess.mode === "live" ? sess.diagnosis?.id : undefined
 
   return (
-    <main style={{ padding: "clamp(20px,4vw,40px) clamp(20px,4vw,48px)", maxWidth: 820 }} className="skeuo-panel">
+    <main className="animate-float-in">
 
       {/* Header */}
-      <div style={{ marginBottom: 36 }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--skeuo-text-inset-color)", textShadow: "-1px -1px 1px var(--skeuo-text-shadow-light), 1px 1px 1px var(--skeuo-text-shadow-dark)", marginBottom: 8, fontFamily: "var(--font-mono-jb), monospace" }}>
-          04 / Verification
+      <div style={{ marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
+        <div style={{ fontSize: 11, fontWeight: 800, color: "#34C1C1", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "var(--font-mono)", marginBottom: 6 }}>
+          04 / Sandbox Hypothesis Testing
         </div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--skeuo-text-color)", textShadow: "1px 1px 0 var(--skeuo-text-shadow-light)", letterSpacing: "-0.3px", marginBottom: 6 }}>
-          Verify runtime hypothesis
-        </h1>
-        <p style={{ fontSize: 13, color: "var(--skeuo-text-inset-color)" }}>
-          {sess.mode === "demo"
-            ? "Run control and experiment to confirm the root cause."
-            : "Run a command inside a container to verify your hypothesis."}
-        </p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 800, color: "#1C2222", letterSpacing: "-0.5px" }}>
+            Verify Hypothesis in Isolated Container
+          </h1>
+          <ModeBadge mode={sess.mode} />
+        </div>
+      </div>
+
+      {/* Non-Technical Info Banner */}
+      <div className="info-callout" style={{ marginBottom: 28 }}>
+        <div className="info-callout-icon">i</div>
+        <div>
+          <strong>What is Verification?</strong> Before committing changes to your repository, AgentDoctor spins up an isolated sandbox container to test your fix hypothesis and prove whether the failure is resolved.
+        </div>
       </div>
 
       {sess.mode === "demo" ? (
