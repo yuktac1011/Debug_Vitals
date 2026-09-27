@@ -224,6 +224,7 @@ export default function Dashboard() {
                 </tbody>
               </table>
             )}
+          </div>
           {/* CI Runs */}
           <div style={{ marginTop: 32 }}>
             <h2 style={{ fontSize: 16, color: "#1C2222", marginBottom: 16 }}>CI Activity</h2>
@@ -270,6 +271,7 @@ export default function Dashboard() {
                 </table>
               )}
             </div>
+          </div>
           {/* Dependencies */}
           <div style={{ marginTop: 32 }}>
             <h2 style={{ fontSize: 16, color: "#1C2222", marginBottom: 16 }}>Dependencies</h2>
