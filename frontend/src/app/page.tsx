@@ -50,15 +50,13 @@ export default function LandingPage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <a
-            href="http://localhost:8000/docs"
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            href="/docs"
             className="btn btn-ghost btn-sm"
             style={{ fontSize: 12, display: "flex", alignItems: "center", gap: 6 }}
           >
-            Backend API Docs ↗
-          </a>
+            Debug_Vitals Doc
+          </Link>
         </div>
       </header>
 

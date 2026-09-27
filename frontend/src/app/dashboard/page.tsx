@@ -132,9 +132,12 @@ export default function Dashboard() {
             {environment.runtime && <span>Runtime: {environment.runtime.type} {environment.runtime.version}</span>}
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ color: "#34C1C1" }}>●</span>
-          <span style={{ fontSize: 14, fontWeight: 500 }}>Watching</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <a href="/docs" style={{ color: "#34C1C1", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>Docs</a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ color: "#34C1C1" }}>●</span>
+            <span style={{ fontSize: 14, fontWeight: 500 }}>Watching</span>
+          </div>
         </div>
       </header>
 
